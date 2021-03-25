@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { IngredientService } from './ingredient.service';
 import { CreateIngredientDto } from './dto/create-ingredient.dto';
@@ -19,10 +20,14 @@ export class IngredientController {
   create(@Body() createIngredientDto: CreateIngredientDto) {
     return this.ingredientService.create(createIngredientDto);
   }
-
   @Get()
   findAll() {
     return this.ingredientService.findAll();
+  }
+
+  @Get()
+  findByName(@Query('name') name: string) {
+    return this.ingredientService.findByNameLike(name);
   }
 
   @Get(':id')

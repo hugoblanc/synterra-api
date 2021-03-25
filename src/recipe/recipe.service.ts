@@ -4,28 +4,28 @@ import { AxiosRequestConfig } from 'axios';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Repository } from 'typeorm';
-import { ZeltyDishResponse } from '../../dist/recipe/zelty/models';
-import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { UpdateRecipeDto } from './dto/update-recipe.dto';
 import { RecipeEntity } from './entities/recipe.entity';
-import { Dish, ZeltyDishesResponse } from './zelty/models';
+import { Dish, ZeltyDishesResponse, ZeltyDishResponse } from './zelty/models';
+import { SpinalService } from './spinal.service';
 
 @Injectable()
 export class RecipeService {
   constructor(
     @InjectRepository(RecipeEntity)
     private repository: Repository<RecipeEntity>,
+    private readonly spinalService: SpinalService,
     private readonly http: HttpService,
   ) {}
-
-  create(createRecipeDto: CreateRecipeDto) {
-    // return this.repository.save(createRecipeDto);
-  }
 
   async synchronize() {
     const dishes = await this.getProductFromZelty().toPromise();
     const recipes = dishes.map((d) => new RecipeEntity(d.id));
     await this.repository.save(recipes);
+    const productList = dishes.map((d: Dish) =>
+      this.spinalService.createProduct(d),
+    );
+    this.spinalService.storeProductList(productList);
     return dishes;
   }
 

@@ -16,11 +16,6 @@ import { UpdateRecipeDto } from './dto/update-recipe.dto';
 export class RecipeController {
   constructor(private readonly recipeService: RecipeService) {}
 
-  @Post()
-  create(@Body() createRecipeDto: CreateRecipeDto) {
-    return this.recipeService.create(createRecipeDto);
-  }
-
   @Post('synchronize')
   synchronize() {
     return this.recipeService.synchronize();
