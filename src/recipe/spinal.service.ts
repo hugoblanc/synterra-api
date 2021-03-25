@@ -15,7 +15,7 @@ export class SpinalService {
     process.env.SPINAL_USER_ID = '168';
     process.env.SPINAL_PASSWORD = 'bRalJJ107AUv'; // you will find it in th file .config.json  (spinalcom connection configuration file)
     this.conn = spinalCore.connect(
-      `http://${process.env.SPINAL_USER_ID}:${process.env.SPINAL_PASSWORD}@${process.env.SPINALHUB_IP}:${process.env.SPINALHUB_PORT}/`,
+      `http://${process.env.SPINAL_USER_ID}:${process.env.SPINAL_PASSWORD}@${process.env.SPINALHUB_IP}:${process.env.SPINALHUB_PORT}/general`,
     );
   }
   press(button) {

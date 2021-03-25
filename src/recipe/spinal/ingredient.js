@@ -1,6 +1,6 @@
-export class ProductListModel extends Model {
+export class IngredientModel extends Model {
   constructor(attrs) {
-    super();
+    super(); // 2
     this.add_attr(attrs);
   }
 
