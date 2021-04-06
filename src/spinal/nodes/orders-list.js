@@ -1,4 +1,4 @@
-export class ProductModel extends Model {
+export class OrdersListModel extends Model {
   constructor(attrs) {
     super(); // 2
     this.add_attr(attrs);
