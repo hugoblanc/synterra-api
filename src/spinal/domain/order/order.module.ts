@@ -8,7 +8,8 @@ import { ZeltyModule } from 'src/zelty/zelty.module';
 
 @Module({
   imports: [HubModule, ZeltyModule],
-  controllers: [OrderController],
+  controllers: [OrderController], // TODO Dégager ce controller d'ici
   providers: [OrderSynchronizerService, OrderHubRepository, OrderDomainService],
+  exports: [OrderDomainService],
 })
 export class OrderModule {}

@@ -1,12 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { map, take } from 'rxjs/operators';
 import { OrderHubRepository } from './order-hub.repository';
-import { Order } from '../../../zelty/models/order';
+import { OrderDTO } from '../../../zelty/models/order';
 import { SpinalInterface } from 'src/spinal/core/framework/spinal-model';
 
-export type OrderNode = Order & SpinalInterface;
+export type OrderNode = OrderDTO & SpinalInterface;
 export type OrderListNode = OrderNode[] & SpinalInterface & { orders: any[] };
 
+// TODO remove dupplication with dish-spin-domain
 @Injectable()
 export class OrderDomainService {
   constructor(private readonly hubRepository: OrderHubRepository) {}
@@ -14,13 +15,12 @@ export class OrderDomainService {
   findAll() {
     return this.hubRepository.load().pipe(
       take(1),
-      map((nodes: OrderListNode): OrderNode[] => {
+      map((nodes: OrderListNode): OrderDTO[] => {
         if (nodes.orders.length === 0) {
           return [];
         }
 
-        const arr2d = (nodes.orders as any).get();
-        return [].concat(...arr2d);
+        return (nodes.orders as any).get();
       }),
     );
   }

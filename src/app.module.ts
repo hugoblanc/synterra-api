@@ -6,9 +6,10 @@ import { DishModule } from './domain/dish/dish.module';
 import { DomainModule } from './domain/domain.module';
 import { SpinalModule } from './spinal/spinal.module';
 import { ZeltyModule } from './zelty/zelty.module';
+import { ReportingModule } from './reporting/reporting.module';
 
 @Module({
-  imports: [SpinalModule, ZeltyModule, ConfigModule, DishModule, DomainModule],
+  imports: [SpinalModule, ZeltyModule, ConfigModule, DishModule, DomainModule, ReportingModule],
   controllers: [AppController],
   providers: [AppService],
 })

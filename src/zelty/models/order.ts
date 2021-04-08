@@ -1,8 +1,8 @@
 export interface OrderReponse {
-  orders: Order[];
+  orders: OrderDTO[];
 }
 
-export interface Order {
+export interface OrderDTO {
   id: number;
   uuid: string;
   comment?: any;
@@ -20,23 +20,23 @@ export interface Order {
   status: number;
   total_discount: number;
   price: number;
-  contents: OrderContent[];
+  contents: Menu[];
   channel: string;
   virtual_brand_name?: any;
   delivery_started: string;
   delivery_ended: string;
 }
 
-interface OrderContent {
+interface Menu {
   id: number;
   name: string;
   type: string;
   item_id: number;
   price: number;
-  contents: (Contents | Content)[];
+  contents: DishOrder[];
 }
 
-interface Contents {
+export interface DishOrder {
   id: number;
   type: string;
   name: string;

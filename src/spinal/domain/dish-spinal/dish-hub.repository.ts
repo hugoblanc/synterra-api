@@ -5,13 +5,13 @@ import { SpinalService } from '../../core/hub/spinal.service';
 import { DishDTO } from '../../../zelty/models/dish';
 
 export type DishNode = DishDTO & SpinalInterface;
-export type DishListNode = DishNode[] & SpinalInterface & { orders: any[] };
+export type DishListNode = DishNode[] & SpinalInterface & { dishes: any[] };
 
 @Injectable()
 export class DishHubRepository extends HubRepository<DishListNode> {
   protected get emptyNode(): SpinalInterface {
     return new (require('../../nodes/dishes-list').DishesListModel)({
-      orders: [],
+      dishes: [],
     });
   }
 

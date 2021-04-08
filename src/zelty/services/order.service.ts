@@ -3,7 +3,7 @@ import { format, subDays } from 'date-fns';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ZeltyHttpService } from '../core/zelty-http.service';
-import { Order, OrderReponse } from '../models/order';
+import { OrderDTO, OrderReponse } from '../models/order';
 
 @Injectable()
 export class OrderService {
@@ -12,7 +12,7 @@ export class OrderService {
 
   constructor(private readonly http: ZeltyHttpService) {}
 
-  getOrders(maxDate?: string): Observable<Order[]> {
+  getOrders(maxDate?: string): Observable<OrderDTO[]> {
     const from = maxDate ?? '2021-04-04';
     const to = format(subDays(new Date(), 1), 'yyyy-MM-dd');
 
