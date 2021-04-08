@@ -2,18 +2,14 @@ import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { addDays, format } from 'date-fns';
 import { Observable } from 'rxjs';
 import { catchError, map, mergeMap, take, tap } from 'rxjs/operators';
-import { Order } from 'src/zelty/models/order';
 import { OrderService } from '../../../zelty/services/order.service';
-import { SpinalInterface } from '../../core/framework/spinal-model';
 import { OrderHubRepository } from './order-hub.repository';
-
-type OrderNode = Order & SpinalInterface;
-type OrderListNode = OrderNode[] & SpinalInterface & { orders: any[] };
+import { OrderNode, OrderListNode } from './order-domain.service';
 
 @Injectable()
 export class OrderSynchronizerService implements OnModuleInit {
   private logger = new Logger(OrderSynchronizerService.name);
-  private orderList: OrderListNode;
+  private orders: OrderNode[];
 
   constructor(
     private readonly hubService: OrderHubRepository,
@@ -30,7 +26,6 @@ export class OrderSynchronizerService implements OnModuleInit {
       catchError((error) => this.createIfUnknown(error)),
     );
 
-    let orderList: OrderListNode;
     loadNodes$
       .pipe(
         take(1),
@@ -38,7 +33,7 @@ export class OrderSynchronizerService implements OnModuleInit {
         mergeMap((max?: string) => this.orderService.getOrders(max)),
         tap((orders) => {
           this.logger.log(`${orders.length} will be synchronized`);
-          this.orderList.orders.concat(orders);
+          this.orders.concat(orders as OrderNode[]);
         }),
       )
       .subscribe();
@@ -52,15 +47,16 @@ export class OrderSynchronizerService implements OnModuleInit {
   private loadArray(): Observable<OrderNode[]> {
     return this.hubService.load().pipe(
       map((nodes: OrderListNode): OrderNode[] => {
-        this.orderList = nodes;
+        this.orders = nodes.orders;
 
-        if (this.orderList.orders.length === 0) {
+        if (this.orders.length === 0) {
           this.logger.log('No orders list in hub');
           return [];
         }
 
-        const arr2d = (this.orderList.orders as any).get();
-        return [].concat(...arr2d);
+        const arr2d: OrderNode[][] = (this.orders as any).get();
+        const orders: OrderNode[] = [].concat(...arr2d) as OrderNode[];
+        return orders;
       }),
     );
   }

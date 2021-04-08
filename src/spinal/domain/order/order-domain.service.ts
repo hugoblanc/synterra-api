@@ -4,8 +4,8 @@ import { OrderHubRepository } from './order-hub.repository';
 import { Order } from '../../../zelty/models/order';
 import { SpinalInterface } from 'src/spinal/core/framework/spinal-model';
 
-type OrderNode = Order & SpinalInterface;
-type OrderListNode = OrderListNode[] & SpinalInterface & { orders: any[] };
+export type OrderNode = Order & SpinalInterface;
+export type OrderListNode = OrderNode[] & SpinalInterface & { orders: any[] };
 
 @Injectable()
 export class OrderDomainService {

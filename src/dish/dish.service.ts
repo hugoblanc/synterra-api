@@ -1,28 +1,29 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { DishZeltyService } from '../zelty/services/dish-zelty.service';
 import { UpdateDishDto } from './dto/update-dish.dto';
 import { DishEntity } from './entities/dish.entity';
+import { DishSynchronizerService } from '../spinal/domain/dish-spinal/dish-synchronizer.service';
 
 @Injectable()
 export class DishService {
+  private logger = new Logger(DishService.name);
+
   constructor(
     @InjectRepository(DishEntity)
     private repository: Repository<DishEntity>,
     private readonly dishZeltyService: DishZeltyService,
+    private readonly dishSynchronizer: DishSynchronizerService,
   ) {}
 
-  async synchronize() {
-    const dishes = await this.dishZeltyService.getAll().toPromise();
-    const recipes = dishes.map((d) => new DishEntity(d.id, d.name));
-    console.log(recipes);
-    return await this.repository.save(recipes);
-    // const productList = dishes.map((d: Dish) =>
-    //   this.productListService.createProduct(d),
-    // );
-    // this.productListService.storeProductList(productList);
-    // return dishes;
+  async synchronize(): Promise<void> {
+    const dishesDTO = await this.dishZeltyService.getAll().toPromise();
+    const dishesEntity = dishesDTO.map((d) => new DishEntity(d.id, d.name));
+    this.logger.log(`${dishesEntity.length} dishes entities will be saved`);
+    await this.repository.save(dishesEntity);
+    this.logger.log(`${dishesEntity.length} dishes nodes will be saved`);
+    await this.dishSynchronizer.store(dishesDTO).toPromise();
   }
 
   async findAll() {
