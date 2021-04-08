@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { Observable } from 'rxjs';
-import { SpinalInterface } from '../models/spinal-model';
+import { SpinalInterface } from '../framework/spinal-model';
 
 @Injectable()
 export class SpinalService implements OnModuleInit {
