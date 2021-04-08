@@ -1,7 +1,6 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { IngredientEntity } from '../../ingredient/entities/ingredient.entity';
-import { RecipeEntity } from '../../recipe/entities/recipe.entity';
 import { DishEntity } from '../../dish/entities/dish.entity';
+import { IngredientEntity } from '../../ingredient/entities/ingredient.entity';
 
 @Entity()
 export class QuantityEntity {

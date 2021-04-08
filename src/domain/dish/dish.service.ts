@@ -1,10 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { DishZeltyService } from '../zelty/services/dish-zelty.service';
+import { DishZeltyService } from '../../zelty/services/dish-zelty.service';
 import { UpdateDishDto } from './dto/update-dish.dto';
 import { DishEntity } from './entities/dish.entity';
-import { DishSynchronizerService } from '../spinal/domain/dish-spinal/dish-synchronizer.service';
+import { DishSynchronizerService } from '../../spinal/domain/dish-spinal/dish-synchronizer.service';
 
 @Injectable()
 export class DishService {
