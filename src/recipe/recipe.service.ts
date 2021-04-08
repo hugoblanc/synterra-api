@@ -1,17 +1,13 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { ProductListService } from '../spinal/services/product-list.service';
-import { Dish } from '../zelty/models/dish';
-import { ZeltyHttpService } from '../zelty/core/zelty-http.service';
 import { RecipeEntity } from './entities/recipe.entity';
 
 @Injectable()
 export class RecipeService {
   constructor(
     @InjectRepository(RecipeEntity)
-    private repository: Repository<RecipeEntity>,
-    private readonly productListService: ProductListService, // private readonly zeltyService: ZeltyHttpService,
+    private repository: Repository<RecipeEntity>, // private readonly productListService: ProductListService, // private readonly zeltyService: ZeltyHttpService,
   ) {}
 
   async synchronize() {
@@ -26,12 +22,11 @@ export class RecipeService {
   }
 
   async findAll() {
-    this.productListService.loadProductList();
-    const localRecipes = await this.repository.find();
-    if (localRecipes.length === 0) {
-      throw new NotFoundException();
-    }
-
+    // this.productListService.loadProductList();
+    // const localRecipes = await this.repository.find();
+    // if (localRecipes.length === 0) {
+    //   throw new NotFoundException();
+    // }
     // return this.zeltyService.getProductFromZelty();
   }
 

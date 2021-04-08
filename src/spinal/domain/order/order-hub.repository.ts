@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { SpinalService } from '../../core/hub/spinal.service';
 import { HubService } from '../../core/framework/hub-service';
 import { Observable } from 'rxjs';
-const listModel = require('../../nodes/orders-list');
+// TODO faire dépendre le repository d'une definition externe du metier => l'entité
 
 @Injectable()
 export class OrderHubRepository implements HubService {
@@ -10,7 +10,11 @@ export class OrderHubRepository implements HubService {
 
   constructor(private readonly spinal: SpinalService) {}
 
-  store(node = new listModel.OrdersListModel({ orders: [] })) {
+  store(
+    node = new (require('../../nodes/orders-list').OrdersListModel)({
+      orders: [],
+    }),
+  ) {
     return this.spinal.store(node, this.NODE_NAME);
   }
 

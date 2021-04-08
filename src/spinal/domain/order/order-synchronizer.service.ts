@@ -12,7 +12,6 @@ type OrderListNode = OrderNode[] & SpinalInterface & { orders: any[] };
 
 @Injectable()
 export class OrderSynchronizerService implements OnModuleInit {
-  private static NODE_NAME = 'orders-list';
   private logger = new Logger(OrderSynchronizerService.name);
   private orderList: OrderListNode;
 
@@ -26,21 +25,23 @@ export class OrderSynchronizerService implements OnModuleInit {
     this.synchronize();
   }
 
-  public synchronize(): Observable<Order[]> {
+  public synchronize(): void {
     const loadNodes$ = this.loadArray().pipe(
       catchError((error) => this.createIfUnknown(error)),
     );
 
     let orderList: OrderListNode;
-    return loadNodes$.pipe(
-      take(1),
-      map(this.findSynchroLimite),
-      mergeMap((max?: string) => this.orderService.getOrders(max)),
-      tap((orders) => {
-        this.logger.log(`${orders.length} will be synchronized`);
-        orderList.orders.concat(orders);
-      }),
-    );
+    loadNodes$
+      .pipe(
+        take(1),
+        map((nodes) => this.findSynchroLimite(nodes)),
+        mergeMap((max?: string) => this.orderService.getOrders(max)),
+        tap((orders) => {
+          this.logger.log(`${orders.length} will be synchronized`);
+          this.orderList.orders.concat(orders);
+        }),
+      )
+      .subscribe();
   }
 
   private createIfUnknown(error: any): Observable<OrderNode[]> {

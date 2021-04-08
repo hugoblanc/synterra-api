@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { format, subDays } from 'date-fns';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -8,6 +8,7 @@ import { Order, OrderReponse } from '../models/order';
 @Injectable()
 export class OrderService {
   private static BASE_RESOURCES = 'orders';
+  private logger = new Logger(OrderService.name);
 
   constructor(private readonly http: ZeltyHttpService) {}
 
@@ -15,7 +16,7 @@ export class OrderService {
     const from = maxDate ?? '2021-04-04';
     const to = format(subDays(new Date(), 1), 'yyyy-MM-dd');
 
-    console.log(from, to);
+    this.logger.log(from, to);
 
     return this.http
       .get<OrderReponse>(OrderService.BASE_RESOURCES, {
