@@ -45,7 +45,4 @@ export interface Dish {
   disable_after?: any;
   o: number;
   zc_only: boolean;
-  //   meta: Meta;
 }
-
-// export interface Meta {}

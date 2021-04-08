@@ -1,13 +1,22 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { IngredientModule } from './ingredient/ingredient.module';
 import { ConfigModule } from './core/config/config.module';
-import { RecipeModule } from './recipe/recipe.module';
+import { IngredientModule } from './ingredient/ingredient.module';
 import { QuantityModule } from './quantity/quantity.module';
+import { RecipeModule } from './recipe/recipe.module';
+import { SpinalModule } from './spinal/spinal.module';
+import { ZeltyModule } from './zelty/zelty.module';
 
 @Module({
-  imports: [IngredientModule, ConfigModule, RecipeModule, QuantityModule],
+  imports: [
+    SpinalModule,
+    ZeltyModule,
+    IngredientModule,
+    ConfigModule,
+    RecipeModule,
+    QuantityModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
