@@ -1,12 +1,19 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
-import { forkJoin, Observable } from 'rxjs';
-import { catchError, mergeMap } from 'rxjs/operators';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { addDays, format } from 'date-fns';
+import { Observable } from 'rxjs';
+import { catchError, map, mergeMap, take, tap } from 'rxjs/operators';
+import { Order } from 'src/zelty/models/order';
 import { OrderService } from '../../zelty/services/order.service';
+import { SpinalInterface } from '../models/spinal-model';
 import { SpinalService } from './spinal.service';
+
+type OrderNode = Order & SpinalInterface;
+type OrderListNode = OrderNode[] & SpinalInterface & { orders: any[] };
 
 @Injectable()
 export class OrderSynchronizerService implements OnModuleInit {
   private static NODE_NAME = 'orders-list';
+  private logger = new Logger(OrderSynchronizerService.name);
 
   constructor(
     private readonly spinal: SpinalService,
@@ -14,35 +21,51 @@ export class OrderSynchronizerService implements OnModuleInit {
   ) {}
 
   onModuleInit() {
-    console.log('Start synchronize');
-    this.synchronize2();
+    this.logger.log('Order synchro started');
+    this.synchronize();
   }
 
-  public synchronize2(): void {
-    const nodes$ = this.load().pipe(
+  public synchronize(): void {
+    const loadNodes$ = this.load().pipe(
       catchError((error) => this.createIfUnknown(error)),
     );
-    const orders$ = this.orderService.getOrders();
 
-    forkJoin([nodes$, orders$]).subscribe(([nodes, orders]) => {
-      console.log('Nodes spinal');
-      console.log(nodes);
-      console.log('Orders zelty');
-      console.log(orders);
-    });
+    let orderList: OrderListNode;
+    loadNodes$
+      .pipe(
+        take(1),
+        map((nodes: OrderListNode): string | undefined => {
+          orderList = nodes as OrderListNode;
+          if (orderList.orders.length === 0) {
+            this.logger.log('No orders list in hub');
+            return;
+          }
+
+          const arr2d = (orderList.orders as any).get();
+          const arr1d = [].concat(...arr2d);
+
+          let max = arr1d.reduce((a, b) =>
+            a.created_at > b.created_at ? a : b,
+          ).created_at;
+
+          max = format(addDays(new Date(max), 1), 'yyyy-MM-dd');
+
+          console.log(max);
+          return max;
+        }),
+        mergeMap((max?: string) => this.orderService.getOrders(max)),
+        tap((orders) => {
+          console.log('No sync orders');
+          console.log(orders.length);
+          orderList.orders.concat(orders);
+        }),
+      )
+      .subscribe();
   }
-
-  // public synchronize(): Observable<void> {
-  //   return this.orderService.getOrders().pipe(
-  //     map((orders) => new listModel.OrdersListModel(orders)),
-  //     mergeMap((spinalModel) => this.spinal.store(spinalModel, 'orders-list')),
-  //     catchError((err) => this.spinal),
-  //   );
-  // }
 
   private createIfUnknown(error): Observable<any> {
     const listModel = require('../nodes/orders-list');
-    const ordersList = new listModel.OrdersListModel({ to: 2 });
+    const ordersList = new listModel.OrdersListModel({ orders: [] });
     return this.spinal
       .store(ordersList, OrderSynchronizerService.NODE_NAME)
       .pipe(mergeMap(() => this.load()));

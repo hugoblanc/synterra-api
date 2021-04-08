@@ -12,7 +12,6 @@ type SpinalDish = Dish & SpinalInterface;
 export class ProductListService implements OnModuleInit {
   constructor(private readonly spinal: SpinalService) {}
   onModuleInit() {
-    console.log('synchro product');
     // this.storeProductList([{ tu: 2 }]).subscribe();
     // setTimeout(() => {
     //   this.loadProductList();
@@ -32,9 +31,6 @@ export class ProductListService implements OnModuleInit {
 
   loadProductList(): void {
     this.spinal.load<SpinalDish>('list').subscribe((list) => {
-      console.log('OK');
-      console.log(JSON.stringify(list[0].tu.has_been_modified()));
-
       setInterval(() => {
         list[0].tu.set(3);
       }, 1000);

@@ -40,13 +40,11 @@ export class SpinalService implements OnModuleInit {
   }
 
   public load<T extends SpinalInterface>(name: string): Observable<T> {
-    console.log('spinal service');
     return new Observable<T>((observer) => {
       this.spinalCore.load(
         this.conn,
         name,
         (object: T) => {
-          observer.next(object);
           object.bind(() => {
             observer.next(object);
           });
@@ -58,50 +56,3 @@ export class SpinalService implements OnModuleInit {
     });
   }
 }
-
-// public load<T extends SpinalInterface>(
-//   name: string,
-//   constructor?: new () => T,
-// ): Observable<T> {
-//   return new Observable<T>((observer) => {
-//     this.spinalLoad(observer, name, constructor);
-//   });
-// }
-
-// private spinalLoad<T extends SpinalInterface>(
-//   observer: Subscriber<T>,
-//   name: string,
-//   constructor?: new () => T,
-// ): void {
-//   this.spinalCore.load(
-//     this.conn,
-//     name,
-//     (node: T) => {
-//       this.bindNode(node, observer);
-//       // TODO: trouver un moyen de complete
-//       // observer.complete();
-//     },
-//     (error: any) => {
-//       if (!constructor) {
-//         observer.error(error);
-//         return;
-//       }
-
-//       const node = new constructor();
-//       this.store(node, name).subscribe(() => {
-//         this.bindNode(node, observer);
-//       });
-//     },
-//   );
-// }
-
-// private bindNode<T extends SpinalInterface>(
-//   node: T,
-//   observer: Subscriber<T>,
-// ): void {
-//   observer.next(node);
-//   node.bind(() => {
-//     observer.next(node);
-//   });
-// }
-// }
