@@ -22,12 +22,7 @@ export class RecipeService {
   }
 
   async findAll() {
-    // this.productListService.loadProductList();
-    // const localRecipes = await this.repository.find();
-    // if (localRecipes.length === 0) {
-    //   throw new NotFoundException();
-    // }
-    // return this.zeltyService.getProductFromZelty();
+    return this.repository.find();
   }
 
   async findOne(id: number) {

@@ -2,11 +2,11 @@
 
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { SpinalService } from '../core/hub/spinal.service';
-import { Dish } from '../../zelty/models/dish';
+import { DishDTO } from '../../zelty/models/dish';
 import { Observable } from 'rxjs';
 import { SpinalInterface } from '../core/framework/spinal-model';
 
-type SpinalDish = Dish & SpinalInterface;
+type SpinalDish = DishDTO & SpinalInterface;
 
 // @Injectable()
 // export class ProductListService implements OnModuleInit {

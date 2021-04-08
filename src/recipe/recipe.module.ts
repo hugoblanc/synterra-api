@@ -7,13 +7,13 @@ import { SpinalModule } from '../spinal/spinal.module';
 import { ZeltyModule } from '../zelty/zelty.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([RecipeEntity]),
-    HttpModule,
-    SpinalModule,
-    ZeltyModule,
-  ],
-  controllers: [RecipeController],
-  providers: [RecipeService],
+  // imports: [
+  //   // TypeOrmModule.forFeature([RecipeEntity]),
+  //   HttpModule,
+  //   SpinalModule,
+  //   ZeltyModule,
+  // ],
+  // controllers: [RecipeController],
+  // providers: [RecipeService],
 })
 export class RecipeModule {}

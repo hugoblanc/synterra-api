@@ -1,20 +1,20 @@
-/* eslint-disable prettier/prettier */
-export interface ZeltyDishesResponse {
-  dishes: Dish[];
-  errno: number;
-}
-export interface ZeltyDishResponse {
-  dish: Dish;
+export interface GetDishesZeltyDTO {
+  dishes: DishDTO[];
   errno: number;
 }
 
-export interface Dish {
+export interface GetDishByIdZeltyDTO {
+  dish: DishDTO[];
+  errno: number;
+}
+
+export interface DishDTO {
   id: number;
   remote_id?: any;
   id_restaurant: number;
   sku?: any;
   name: string;
-  description?: any;
+  description?: string;
   image: string;
   thumb: string;
   price: number;
@@ -24,12 +24,12 @@ export interface Dish {
   cost_price?: any;
   tva: number;
   tvat?: any;
-  tvad?: any;
+  tvad?: number;
   tax: number;
   tax_takeaway?: any;
-  tax_delivery?: any;
+  tax_delivery?: number;
   tags: number[];
-  options: any[];
+  options: number[];
   id_fabrication_place: number;
   fab_name?: any;
   color?: any;
@@ -45,4 +45,7 @@ export interface Dish {
   disable_after?: any;
   o: number;
   zc_only: boolean;
+  meta: MetaDTO;
 }
+
+interface MetaDTO {}

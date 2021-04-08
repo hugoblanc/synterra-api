@@ -14,6 +14,7 @@ export class ZeltyHttpService {
   constructor(private readonly http: HttpService) {
     this.http.axiosRef.interceptors.request.use((config) => {
       config.url = ZeltyHttpService.BASE_URL + config.url;
+      console.log(config.url);
       config.headers.Authorization = ZeltyHttpService.ZELTY_TOKEN;
       return config;
     });
