@@ -7,4 +7,7 @@ export class IngredientEntity {
 
   @Column()
   name: string;
+
+  @Column()
+  price: number;
 }

@@ -9,7 +9,14 @@ import { ZeltyModule } from './zelty/zelty.module';
 import { ReportingModule } from './reporting/reporting.module';
 
 @Module({
-  imports: [SpinalModule, ZeltyModule, ConfigModule, DishModule, DomainModule, ReportingModule],
+  imports: [
+    SpinalModule,
+    ZeltyModule,
+    ConfigModule,
+    DishModule,
+    DomainModule,
+    ReportingModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

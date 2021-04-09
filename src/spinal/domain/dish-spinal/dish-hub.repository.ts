@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { SpinalInterface } from 'src/spinal/core/framework/spinal-model';
 import { HubRepository } from '../../core/framework/hub-service';
 import { SpinalService } from '../../core/hub/spinal.service';
 import { DishDTO } from '../../../zelty/models/dish';
+import { SpinalInterface } from '../../core/framework/spinal-model';
 
 export type DishNode = DishDTO & SpinalInterface;
 export type DishListNode = DishNode[] & SpinalInterface & { dishes: any[] };

@@ -1,3 +1,4 @@
+import { QuantityEntity } from '../../domain/quantity/entities/quantity.entity';
 export interface GetDishesZeltyDTO {
   dishes: DishDTO[];
   errno: number;
@@ -46,6 +47,7 @@ export interface DishDTO {
   o: number;
   zc_only: boolean;
   meta: MetaDTO;
+  quantities?: QuantityEntity[];
 }
 
 interface MetaDTO {}

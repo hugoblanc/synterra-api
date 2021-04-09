@@ -4,7 +4,7 @@ import { HubModule } from '../../core/hub/hub.module';
 import { OrderSynchronizerService } from './order-synchronizer.service';
 import { OrderHubRepository } from './order-hub.repository';
 import { OrderDomainService } from './order-domain.service';
-import { ZeltyModule } from 'src/zelty/zelty.module';
+import { ZeltyModule } from '../../../zelty/zelty.module';
 
 @Module({
   imports: [HubModule, ZeltyModule],

@@ -45,18 +45,19 @@ export class ReportingService {
     fullDishes,
     orderedDishes,
   }: MixedDished): number[][] {
-    const report = new Map<number, { count: number; price: number }>();
+    const report = new Map<number, { count: number; marge: number }>();
     for (const dish of orderedDishes) {
       const id = dish.id;
       const count = (report.get(id)?.count ?? 0) + 1;
       try {
-        const price = fullDishes.find((d) => d.id === id).price;
-        report.set(id, { count, price });
+        const dish = fullDishes.find((d) => d.id === id);
+        const marge = this.calculMargeBrute(dish);
+        report.set(id, { count, marge });
       } catch (error) {
         // console.log(dish);
       }
     }
-    const data = Array.from(report.values()).map((v) => [v.count, v.price]);
+    const data = Array.from(report.values()).map((v) => [v.count, v.marge]);
 
     let takes = 0;
     for (const dish of data) {
@@ -66,5 +67,15 @@ export class ReportingService {
     data.forEach((d) => (d[0] = (d[0] / takes) * 100));
 
     return data;
+  }
+
+  calculMargeBrute(dish: DishDTO) {
+    const price = dish.price;
+    const coast: number =
+      dish.quantities?.reduce(
+        (sum, q) => sum + q.amount * q.ingredient.price,
+        0,
+      ) ?? 0;
+    return price / coast;
   }
 }

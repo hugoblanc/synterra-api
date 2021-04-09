@@ -1,19 +1,24 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { EventEmitter2 } from 'eventemitter2';
+import { Repository } from 'typeorm';
 import { CreateQuantityDto } from './dto/create-quantity.dto';
 import { UpdateQuantityDto } from './dto/update-quantity.dto';
-import { Repository } from 'typeorm';
 import { QuantityEntity } from './entities/quantity.entity';
+import { QuantityCreatedEvent } from '../../event/quantity.event';
 
 @Injectable()
 export class QuantityService {
   constructor(
     @InjectRepository(QuantityEntity)
     private repository: Repository<QuantityEntity>,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
-  create(createQuantityDto: CreateQuantityDto) {
-    return this.repository.save(createQuantityDto);
+  async create(createQuantityDto: CreateQuantityDto) {
+    const quantity = await this.repository.save(createQuantityDto);
+    const event = new QuantityCreatedEvent(quantity);
+    this.eventEmitter.emit(QuantityCreatedEvent.EVENT_NAME, event);
   }
 
   findAll() {

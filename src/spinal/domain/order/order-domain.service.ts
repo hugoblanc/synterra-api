@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { map, take } from 'rxjs/operators';
 import { OrderHubRepository } from './order-hub.repository';
 import { OrderDTO } from '../../../zelty/models/order';
-import { SpinalInterface } from 'src/spinal/core/framework/spinal-model';
+import { SpinalInterface } from '../../core/framework/spinal-model';
 
 export type OrderNode = OrderDTO & SpinalInterface;
 export type OrderListNode = OrderNode[] & SpinalInterface & { orders: any[] };
