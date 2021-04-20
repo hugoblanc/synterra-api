@@ -1,10 +1,12 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, UseGuards } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { ReportingService } from './reporting.service';
 import { OrderSumPriceDataCharts } from './order/order-reporting.service';
 import { OrderDTO } from '../zelty/models/order';
+import { JwtAuthGuard } from '../core/auth/jwt.guard';
 
 @Controller('reporting')
+@UseGuards(JwtAuthGuard)
 export class ReportingController {
   constructor(private readonly reportingService: ReportingService) {}
 
