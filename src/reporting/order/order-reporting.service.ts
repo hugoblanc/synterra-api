@@ -34,7 +34,6 @@ export class OrderReportingService {
 
       let sum = result.get(createAt) ?? 0;
       sum += o.price;
-      console.log(createAt);
       result.set(createAt, sum);
     });
 
