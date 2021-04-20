@@ -9,7 +9,7 @@ export type OrderListNode = OrderNode[] & SpinalInterface & { orders: any[] };
 
 // TODO remove dupplication with dish-spin-domain
 @Injectable()
-export class OrderDomainService {
+export class OrderSpinalDomainService {
   constructor(private readonly hubRepository: OrderHubRepository) {}
 
   findAll() {

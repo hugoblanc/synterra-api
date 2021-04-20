@@ -1,10 +1,10 @@
 import { Controller, Get } from '@nestjs/common';
 import { Observable } from 'rxjs';
-import { OrderDomainService } from './order-domain.service';
+import { OrderSpinalDomainService } from './order-spinal-domain.service';
 
 @Controller('orders')
 export class OrderController {
-  constructor(private readonly domainService: OrderDomainService) {}
+  constructor(private readonly domainService: OrderSpinalDomainService) {}
 
   @Get()
   findAll(): Observable<any> {

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { HubRepository } from '../../core/framework/hub-service';
 import { SpinalService } from '../../core/hub/spinal.service';
-import { OrderListNode } from './order-domain.service';
+import { OrderListNode } from './order-spinal-domain.service';
 import { SpinalInterface } from '../../core/framework/spinal-model';
 // TODO faire dépendre le repository d'une definition externe du metier => l'entité
 

@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { catchError, map, mergeMap, take, tap } from 'rxjs/operators';
 import { OrderService } from '../../../zelty/services/order.service';
 import { OrderHubRepository } from './order-hub.repository';
-import { OrderNode, OrderListNode } from './order-domain.service';
+import { OrderNode, OrderListNode } from './order-spinal-domain.service';
 
 @Injectable()
 export class OrderSynchronizerService implements OnModuleInit {
