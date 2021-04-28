@@ -6,5 +6,6 @@ import { UserModule } from './user/user.module';
 
 @Module({
   imports: [IngredientModule, DishModule, QuantityModule, UserModule],
+  exports: [UserModule],
 })
 export class DomainModule {}

@@ -32,7 +32,6 @@ function fromCookieExtractor() {
     let token = null;
     if (req && req.cookies) {
       token = req.cookies['Token'];
-      logger.debug(token);
     }
     return token;
   };
