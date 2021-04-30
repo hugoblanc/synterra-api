@@ -9,10 +9,10 @@ export class SpinalService implements OnModuleInit {
   private conn: any;
 
   constructor() {
-    process.env.SPINALHUB_PORT = '7777';
-    process.env.SPINALHUB_IP = 'localhost';
-    process.env.SPINAL_USER_ID = '168';
-    process.env.SPINAL_PASSWORD = 'bRalJJ107AUv'; // you will find it in th file .config.json  (spinalcom connection configuration file)
+    // process.env.SPINALHUB_PORT = '7777';
+    // process.env.SPINALHUB_IP = '213.32.114.215';
+    // process.env.SPINAL_USER_ID = '168';
+    // process.env.SPINAL_PASSWORD = 'bRalJJ107AUv'; // you will find it in th file .config.json  (spinalcom connection configuration file)
   }
   onModuleInit() {
     this.initSpinalConnexion();
