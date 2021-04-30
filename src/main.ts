@@ -10,7 +10,7 @@ async function bootstrap() {
     origin: [
       'http://localhost:4200',
       'http://127.0.0.1:4200',
-      'https://synterra-api.witpoc.com',
+      'https://synterra-app.witpoc.com',
     ],
   });
   await app.listen(3000);
