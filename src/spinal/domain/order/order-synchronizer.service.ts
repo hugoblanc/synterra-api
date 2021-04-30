@@ -63,8 +63,9 @@ export class OrderSynchronizerService implements OnModuleInit {
 
   private findSynchroLimite(nodes: OrderNode[] = []): string | undefined {
     let max =
-      nodes.reduce((a, b) => (a.created_at > b.created_at ? a : b))
-        .created_at ?? '01/01/2020';
+      nodes.reduce<OrderNode>((a, b) => (a.created_at > b.created_at ? a : b), {
+        created_at: '01/01/2020',
+      } as OrderNode).created_at ?? '01/01/2020';
     const maxDate = new Date(max);
     console.log(maxDate);
     max = format(addDays(maxDate, 1), 'yyyy-MM-dd');
