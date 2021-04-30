@@ -7,7 +7,11 @@ async function bootstrap() {
   app.use(cookieParser());
   app.enableCors({
     credentials: true,
-    origin: ['http://localhost:4200', 'http://127.0.0.1:4200'],
+    origin: [
+      'http://localhost:4200',
+      'http://127.0.0.1:4200',
+      'https://synterra-api.witpoc.com',
+    ],
   });
   await app.listen(3000);
 }
