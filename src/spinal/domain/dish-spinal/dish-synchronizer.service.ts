@@ -1,14 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import {
-  DishHubRepository,
-  DishListNode,
-  DishNode,
-} from './dish-hub.repository';
-import { DishDTO } from '../../../zelty/models/dish';
-import { Observable } from 'rxjs';
 import { OnEvent } from '@nestjs/event-emitter';
-import { QuantityCreatedEvent } from '../../../event/quantity.event';
+import { Observable } from 'rxjs';
 import { take } from 'rxjs/operators';
+import { QuantityCreatedEvent } from '../../../event/quantity.event';
+import { DishDTO } from '../../../zelty/models/dish';
+import { DishHubRepository, DishListNode } from './dish-hub.repository';
 
 @Injectable()
 export class DishSynchronizerService {

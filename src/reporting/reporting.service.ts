@@ -1,11 +1,14 @@
-import { Injectable } from '@nestjs/common';
 import { Observable } from 'rxjs';
-import { OrderDTO } from 'src/zelty/models/order';
+
+import { Injectable } from '@nestjs/common';
+
+import { OrderDTO } from '../zelty/models/order';
 import { MatrixReportingService } from './matrix/matrix-reporting.service';
-import { AverageDuration, AveragePrice } from './order/order-reporting.service';
 import {
-  OrderReportingService,
   ActionOrderGroupedPerDay,
+  AverageDuration,
+  AveragePrice,
+  OrderReportingService,
 } from './order/order-reporting.service';
 
 @Injectable()

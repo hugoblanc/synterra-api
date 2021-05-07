@@ -1,10 +1,12 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { OnEvent } from '@nestjs/event-emitter';
 import { addDays, format } from 'date-fns';
 import { Observable } from 'rxjs';
 import { catchError, map, mergeMap, take, tap } from 'rxjs/operators';
+import { OrderStatusUpdateEvent } from 'src/event/zelty/order-status-update.event';
 import { OrderService } from '../../../zelty/services/order.service';
 import { OrderHubRepository } from './order-hub.repository';
-import { OrderNode, OrderListNode } from './order-spinal-domain.service';
+import { OrderListNode, OrderNode } from './order-spinal-domain.service';
 
 @Injectable()
 export class OrderSynchronizerService implements OnModuleInit {
@@ -12,7 +14,7 @@ export class OrderSynchronizerService implements OnModuleInit {
   private orders: OrderNode[];
 
   constructor(
-    private readonly hubService: OrderHubRepository,
+    private readonly orderHubRepository: OrderHubRepository,
     private readonly orderService: OrderService,
   ) {}
 
@@ -39,13 +41,29 @@ export class OrderSynchronizerService implements OnModuleInit {
       .subscribe();
   }
 
+  @OnEvent(OrderStatusUpdateEvent.EVENT_NAME)
+  handleQuantityCreatedEvent(orderStatusUpdateEvent: OrderStatusUpdateEvent) {
+    this.orderHubRepository
+      .load()
+      .pipe(take(1))
+      // TODO: cleaner cette merde en faisant des get by id
+      .subscribe((ordersListNode: OrderListNode) => {
+        const order = ordersListNode.orders.filter(
+          (d: any) => d?.id.get() === orderStatusUpdateEvent.update.id,
+        )[0];
+        order.add_attr('status', [orderStatusUpdateEvent.update.status]);
+      });
+  }
+
   private createIfUnknown(error: any): Observable<OrderNode[]> {
     this.logger.error(error);
-    return this.hubService.store().pipe(mergeMap(() => this.loadArray()));
+    return this.orderHubRepository
+      .store()
+      .pipe(mergeMap(() => this.loadArray()));
   }
 
   private loadArray(): Observable<OrderNode[]> {
-    return this.hubService.load().pipe(
+    return this.orderHubRepository.load().pipe(
       map((nodes: OrderListNode): OrderNode[] => {
         this.orders = nodes.orders;
 

@@ -1,4 +1,3 @@
 {
-     "editor.defaultFormatter": "esbenp.prettier-vscode",
-     "html.format.unformatted": ""
+  "editor.defaultFormatter": "esbenp.prettier-vscode"
 }
