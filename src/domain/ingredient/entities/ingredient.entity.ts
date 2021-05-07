@@ -1,4 +1,5 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { IngredientUnit } from './ingredient-unite.enum';
 
 @Entity()
 export class IngredientEntity {
@@ -8,6 +9,13 @@ export class IngredientEntity {
   @Column()
   name: string;
 
-  @Column()
+  @Column({
+    type: 'enum',
+    enum: IngredientUnit,
+    default: IngredientUnit.KG,
+  })
+  unite: IngredientUnit;
+
+  @Column({ type: 'float4', nullable: true })
   price: number;
 }
