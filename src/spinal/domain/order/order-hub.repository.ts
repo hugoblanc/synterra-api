@@ -1,17 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import { HubRepository } from '../../core/framework/hub-service';
+import { SpinalInterface } from '../../core/framework/spinal-model';
 import { SpinalService } from '../../core/hub/spinal.service';
 import { OrderListNode } from './order-spinal-domain.service';
-import { SpinalInterface } from '../../core/framework/spinal-model';
 // TODO faire dépendre le repository d'une definition externe du metier => l'entité
 
 @Injectable()
 export class OrderHubRepository extends HubRepository<OrderListNode> {
   protected get emptyNode(): SpinalInterface {
-    return new (require('../../nodes/orders-list').OrdersListModel)({
-      orders: [],
-    });
+    const emptyNode = {};
+    emptyNode[this.ROOT_NAME] = [];
+    return new (require('../../nodes/orders-list').OrdersListModel)(emptyNode);
   }
+
+  readonly ROOT_NAME = 'orders';
   readonly NODE_NAME = 'orders-list';
 
   constructor(spinal: SpinalService) {

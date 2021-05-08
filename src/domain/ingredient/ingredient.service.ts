@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Like, Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { CreateIngredientDto } from './dto/create-ingredient.dto';
 import { UpdateIngredientDto } from './dto/update-ingredient.dto';
 import { IngredientEntity } from './entities/ingredient.entity';
@@ -22,7 +22,7 @@ export class IngredientService {
 
   findByNameLike(name: string) {
     return this.repository.find({
-      name: Like(`%${name}%`),
+      name: ILike(`%${name}%`),
     });
   }
 

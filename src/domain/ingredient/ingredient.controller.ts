@@ -1,16 +1,16 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
   Query,
 } from '@nestjs/common';
-import { IngredientService } from './ingredient.service';
 import { CreateIngredientDto } from './dto/create-ingredient.dto';
 import { UpdateIngredientDto } from './dto/update-ingredient.dto';
+import { IngredientService } from './ingredient.service';
 
 @Controller('ingredients')
 export class IngredientController {
@@ -21,13 +21,14 @@ export class IngredientController {
     return this.ingredientService.create(createIngredientDto);
   }
   @Get()
-  findAll() {
-    return this.ingredientService.findAll();
+  findByName(@Query('name') name: string) {
+    console.log('on passe ici ? ' + name);
+    return this.ingredientService.findByNameLike(name);
   }
 
   @Get()
-  findByName(@Query('name') name: string) {
-    return this.ingredientService.findByNameLike(name);
+  findAll() {
+    return this.ingredientService.findAll();
   }
 
   @Get(':id')

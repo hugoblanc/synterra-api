@@ -3,7 +3,7 @@ import { OnEvent } from '@nestjs/event-emitter';
 import { addDays, format } from 'date-fns';
 import { Observable } from 'rxjs';
 import { catchError, map, mergeMap, take, tap } from 'rxjs/operators';
-import { OrderStatusUpdateEvent } from 'src/event/zelty/order-status-update.event';
+import { OrderStatusUpdateEvent } from '../../../event/zelty/order-status-update.event';
 import { OrderService } from '../../../zelty/services/order.service';
 import { OrderHubRepository } from './order-hub.repository';
 import { OrderListNode, OrderNode } from './order-spinal-domain.service';
@@ -44,14 +44,13 @@ export class OrderSynchronizerService implements OnModuleInit {
   @OnEvent(OrderStatusUpdateEvent.EVENT_NAME)
   handleQuantityCreatedEvent(orderStatusUpdateEvent: OrderStatusUpdateEvent) {
     this.orderHubRepository
-      .load()
-      .pipe(take(1))
-      // TODO: cleaner cette merde en faisant des get by id
-      .subscribe((ordersListNode: OrderListNode) => {
-        const order = ordersListNode.orders.filter(
-          (d: any) => d?.id.get() === orderStatusUpdateEvent.update.id,
-        )[0];
-        order.add_attr('status', [orderStatusUpdateEvent.update.status]);
+      .find<OrderNode>({
+        id: orderStatusUpdateEvent.update.id,
+      })
+      .subscribe((nodes: OrderNode[]) => {
+        for (const node of nodes) {
+          (node.status as any).set(orderStatusUpdateEvent.update.status);
+        }
       });
   }
 

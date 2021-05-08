@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { EventEmitter2 } from 'eventemitter2';
-import { OrderStatusUpdateEvent } from 'src/event/zelty/order-status-update.event';
 import { OrderStatusUpdate } from '../models/order-status';
+import { OrderStatusUpdateEvent } from '../../event/zelty/order-status-update.event';
 
 @Injectable()
 export class HooksService {
