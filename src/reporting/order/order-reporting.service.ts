@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { OrderSpinalDomainService } from '../../spinal/domain/order/order-spinal-domain.service';
-import { OrderDTO } from '../../zelty/models/order';
 import { format } from 'date-fns';
+import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ArrayHelper } from '../../core/shared/helper/array.helper';
-import { Observable } from 'rxjs';
+import { OrderSpinalDomainService } from '../../spinal/domain/order/order-spinal-domain.service';
+import { OrderDTO } from '../../zelty/models/order';
 
 export interface ActionOrderGroupedPerDay {
   labels: number[];
@@ -71,13 +71,15 @@ export class OrderReportingService {
     const result = new Map<number, number>();
 
     orders.forEach((o) => {
-      const createAt = new Date(
-        format(new Date(o.created_at), 'MM/dd/yyyy'),
-      ).getTime();
+      if (o.created_at) {
+        const createAt = new Date(
+          format(new Date(o.created_at), 'MM/dd/yyyy'),
+        ).getTime();
 
-      let sum = result.get(createAt) ?? 0;
-      sum = callbackAction(o, sum);
-      result.set(createAt, sum);
+        let sum = result.get(createAt) ?? 0;
+        sum = callbackAction(o, sum);
+        result.set(createAt, sum);
+      }
     });
 
     const resultAsArray = Array.from(result) as SumDayMap[];
