@@ -1,14 +1,16 @@
 import { Module } from '@nestjs/common';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { ScheduleModule } from '@nestjs/schedule';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigService } from './config.service';
-import { config } from './ormconfig';
 import { MailModule } from './mail/mail.module';
+import { config } from './ormconfig';
 
 @Module({
   imports: [
     TypeOrmModule.forRoot(config),
     EventEmitterModule.forRoot(),
+    ScheduleModule.forRoot(),
     MailModule.forRoot({
       host: 'ssl0.ovh.net',
       port: 465,

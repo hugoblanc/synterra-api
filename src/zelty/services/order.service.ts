@@ -15,6 +15,15 @@ export class OrderService {
 
   constructor(private readonly http: ZeltyHttpService) {}
 
+  getOpenOrders(): Observable<OrderDTO[]> {
+    const opened = 1;
+    return this.http
+      .get<OrderResponse>(OrderService.BASE_RESOURCES, {
+        params: { opened },
+      })
+      .pipe(map((response) => response.orders));
+  }
+
   getAllOrders(max?: string): Observable<OrderDTO[]> {
     const getPage = (page?: number) =>
       defer(() => this.getOrders(page, max)).pipe(
