@@ -20,14 +20,14 @@ export interface OrderDTO {
   status: number;
   total_discount: number;
   price: number;
-  contents: Menu[];
+  contents: (ZeltyMenu | DishOrder)[];
   channel: string;
   virtual_brand_name?: any;
   delivery_started: string;
   delivery_ended: string;
 }
 
-interface Menu {
+export interface ZeltyMenu {
   id: number;
   name: string;
   type: string;

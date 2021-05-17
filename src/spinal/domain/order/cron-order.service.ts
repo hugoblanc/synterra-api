@@ -1,7 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Cron } from '@nestjs/schedule';
 import { forkJoin } from 'rxjs';
 import { take } from 'rxjs/operators';
+import { OrderCreatedEvent } from '../../../event/zelty/order-created.event';
 import { OrderDTO } from '../../../zelty/models/order';
 import { OrderService } from '../../../zelty/services/order.service';
 import { OpenOrdersHubRepository } from './open-order-hub.repository';
@@ -14,11 +16,12 @@ export class CronOrderService {
   constructor(
     private readonly openOrdersHubRepository: OpenOrdersHubRepository,
     private readonly orderService: OrderService,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   @Cron('0 * * * * *')
   handleCron() {
-    this.logger.debug('Called when the current second is 45');
+    this.logger.debug('Called when the current second is 0');
 
     const load$ = this.openOrdersHubRepository.load().pipe(take(1));
 
@@ -42,8 +45,9 @@ export class CronOrderService {
       const node = nodes.find((n: OrderNode) => n.id === o.id);
       if (!node) {
         this.logger.log('Node added to opened list ' + o.id);
-
         (nodesList as any).orders.concat([o]);
+
+        this.sendOrderCreatedEvent(o);
       }
     });
   }
@@ -67,5 +71,10 @@ export class CronOrderService {
     removableIndexes.forEach((index) =>
       (nodesList as any).orders.splice(index, 1),
     );
+  }
+
+  private sendOrderCreatedEvent(order: OrderDTO): void {
+    const event = new OrderCreatedEvent(order);
+    this.eventEmitter.emit(OrderCreatedEvent.EVENT_NAME, event);
   }
 }

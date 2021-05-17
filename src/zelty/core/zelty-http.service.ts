@@ -12,16 +12,24 @@ export class ZeltyHttpService {
   private static ZELTY_TOKEN = 'Bearer MjEzOToA8z9gdxQgQWqeSK6BKPMMReIuBA==';
 
   constructor(private readonly http: HttpService) {
-    this.http.axiosRef.interceptors.request.use((config) => {
-      config.url = ZeltyHttpService.BASE_URL + config.url;
-      console.log(config.url);
-      config.headers.Authorization = ZeltyHttpService.ZELTY_TOKEN;
-      return config;
-    });
+    // this.http.axiosRef.interceptors.request.use((config) => {
+    //   config.url = ZeltyHttpService.BASE_URL + config.url;
+    //   console.log(config.url);
+    //   config.headers.Authorization = ZeltyHttpService.ZELTY_TOKEN;
+    //   return config;
+    // });
   }
 
-  public get<T = any>(url: string, config?: AxiosRequestConfig): Observable<T> {
-    return this.http.get<T>(url, config).pipe(map((response) => response.data));
+  public get<T = any>(
+    url: string,
+    config: AxiosRequestConfig = {},
+  ): Observable<T> {
+    config.headers = {
+      Authorization: ZeltyHttpService.ZELTY_TOKEN,
+    };
+    return this.http
+      .get<T>(ZeltyHttpService.BASE_URL + url, config)
+      .pipe(map((response) => response.data));
   }
 }
 

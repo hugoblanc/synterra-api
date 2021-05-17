@@ -3,6 +3,7 @@ import { forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { DishSpinalDomainService } from '../../spinal/domain/dish-spinal/dish-spinal-domain.service';
 import { OrderSpinalDomainService } from '../../spinal/domain/order/order-spinal-domain.service';
+import { dishFinder } from '../../zelty/core/dish-finder.utils';
 import { DishDTO } from '../../zelty/models/dish';
 import { DishOrder, OrderDTO } from '../../zelty/models/order';
 
@@ -24,19 +25,18 @@ export class MatrixReportingService {
 
     return forkJoin([dishes$, orders$]).pipe(
       map(([fullDishes, orders]) => {
-        const orderedDishes = this.dishFinder(orders);
+        const orderedDishes = this.findDishes(orders);
         return { orderedDishes, fullDishes };
       }),
       map((mixedDishes) => this.generateReport(mixedDishes)),
     );
   }
 
-  private dishFinder(orders: OrderDTO[]) {
+  private findDishes(orders: OrderDTO[]) {
     const dishes: DishOrder[] = [];
     for (const order of orders) {
-      for (const menu of order.contents) {
-        dishes.push(...menu.contents);
-      }
+      const dishesOrder = dishFinder(order);
+      dishes.concat(...dishesOrder);
     }
     return dishes;
   }
