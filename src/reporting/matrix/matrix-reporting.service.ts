@@ -62,7 +62,7 @@ export class MatrixReportingService {
     const data = Array.from(report.values()).map((v) => [v.count, v.marge]);
 
     const countDishes = orderedDishes.length;
-    data.forEach((d) => (d[0] = (d[0] / countDishes) * 100));
+    data.forEach((d) => (d[0] = (d[0] / countDishes) * 100 * 10));
 
     return data;
   }
