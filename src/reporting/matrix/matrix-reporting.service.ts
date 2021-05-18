@@ -38,8 +38,6 @@ export class MatrixReportingService {
       const dishesOrder = dishFinder(order);
       dishes.push(...dishesOrder);
     }
-    console.log('dishes.length');
-    console.log(dishes.length);
     return dishes;
   }
 
