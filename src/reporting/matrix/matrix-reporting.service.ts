@@ -36,8 +36,10 @@ export class MatrixReportingService {
     const dishes: DishOrder[] = [];
     for (const order of orders) {
       const dishesOrder = dishFinder(order);
-      dishes.concat(...dishesOrder);
+      dishes.push(...dishesOrder);
     }
+    console.log('dishes.length');
+    console.log(dishes.length);
     return dishes;
   }
 
@@ -47,24 +49,22 @@ export class MatrixReportingService {
   }: MixedDished): number[][] {
     const report = new Map<number, { count: number; marge: number }>();
     for (const dish of orderedDishes) {
-      const id = dish.id;
+      const id = (dish as any).item_id;
       const count = (report.get(id)?.count ?? 0) + 1;
       try {
         const dish = fullDishes.find((d) => d.id === id);
         const marge = this.calculMargeBrute(dish);
-        report.set(id, { count, marge });
+        if (Number.isFinite(marge)) {
+          report.set(id, { count, marge });
+        }
       } catch (error) {
         // console.log(dish);
       }
     }
     const data = Array.from(report.values()).map((v) => [v.count, v.marge]);
 
-    let takes = 0;
-    for (const dish of data) {
-      takes += dish[0];
-    }
-
-    data.forEach((d) => (d[0] = (d[0] / takes) * 100));
+    const countDishes = orderedDishes.length;
+    data.forEach((d) => (d[0] = (d[0] / countDishes) * 100));
 
     return data;
   }
@@ -76,6 +76,7 @@ export class MatrixReportingService {
         (sum, q) => sum + q.amount * q.ingredient.price,
         0,
       ) ?? 0;
-    return price / coast;
+    // FIXME deal with infinity
+    return price / (coast * 100);
   }
 }

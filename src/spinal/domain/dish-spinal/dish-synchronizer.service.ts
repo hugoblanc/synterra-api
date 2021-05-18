@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { Observable } from 'rxjs';
 import { take } from 'rxjs/operators';
@@ -7,8 +7,14 @@ import { DishDTO } from '../../../zelty/models/dish';
 import { DishHubRepository, DishListNode } from './dish-hub.repository';
 
 @Injectable()
-export class DishSynchronizerService {
+export class DishSynchronizerService implements OnModuleInit {
+  logger = new Logger(DishSynchronizerService.name);
+
   constructor(private readonly dishHubRepository: DishHubRepository) {}
+
+  onModuleInit(): void {
+    this.logger.log('Checking dish spinal state');
+  }
 
   @OnEvent(QuantityCreatedEvent.EVENT_NAME)
   handleQuantityCreatedEvent(quantityCreatedEvent: QuantityCreatedEvent) {
