@@ -71,7 +71,7 @@ export class MatrixReportingService {
     const price = dish.price;
     const coast: number =
       dish.quantities?.reduce(
-        (sum, q) => sum + q.amount * q.ingredient.price,
+        (sum, q) => sum + (q.amount / 1000) * q.ingredient.price,
         0,
       ) ?? 0;
     // FIXME deal with infinity
