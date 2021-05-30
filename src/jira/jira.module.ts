@@ -6,5 +6,6 @@ import { JiraTaskService } from './jira-task.service';
   imports: [HttpModule],
   controllers: [],
   providers: [JiraHttpService, JiraTaskService],
+  exports: [JiraTaskService],
 })
 export class JiraModule {}

@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ArrayHelper } from '../../core/shared/helper/array.helper';
 import { OrderSpinalDomainService } from '../../spinal/domain/order/order-spinal-domain.service';
-import { OrderDTO } from '../../zelty/models/order';
+import { OrderDTO } from '../../zelty/models/order.dto';
 
 export interface ActionOrderGroupedPerDay {
   labels: number[];

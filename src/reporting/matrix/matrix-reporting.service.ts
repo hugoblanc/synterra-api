@@ -5,7 +5,7 @@ import { DishSpinalDomainService } from '../../spinal/domain/dish-spinal/dish-sp
 import { OrderSpinalDomainService } from '../../spinal/domain/order/order-spinal-domain.service';
 import { dishFinder } from '../../zelty/core/dish-finder.utils';
 import { DishDTO } from '../../zelty/models/dish';
-import { DishOrder, OrderDTO } from '../../zelty/models/order';
+import { DishOrder, OrderDTO } from '../../zelty/models/order.dto';
 
 interface MixedDished {
   fullDishes: DishDTO[];

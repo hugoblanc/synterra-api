@@ -3,8 +3,8 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Cron } from '@nestjs/schedule';
 import { forkJoin } from 'rxjs';
 import { take } from 'rxjs/operators';
-import { OrderCreatedEvent } from '../../../event/zelty/order-created.event';
-import { OrderDTO } from '../../../zelty/models/order';
+import { OrderCreatedEvent as OrdersCreatedEvent } from '../../../event/zelty/order-created.event';
+import { OrderDTO } from '../../../zelty/models/order.dto';
 import { OrderService } from '../../../zelty/services/order.service';
 import { OpenOrdersHubRepository } from './open-order-hub.repository';
 import { OrderNode } from './order-spinal-domain.service';
@@ -19,9 +19,9 @@ export class CronOrderService {
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
-  @Cron('0 * * * * *')
+  @Cron('*/15 * * * * *')
   handleCron() {
-    this.logger.debug('Called when the current second is 0');
+    this.logger.debug('*/15 * * * * *');
 
     const load$ = this.openOrdersHubRepository.load().pipe(take(1));
 
@@ -40,16 +40,16 @@ export class CronOrderService {
     nodesList: OrderNode[],
   ): void {
     const nodes = (nodesList as any).orders.get();
-
+    const ordersToCreate = [];
     openedOrders.forEach((o) => {
       const node = nodes.find((n: OrderNode) => n.id === o.id);
       if (!node) {
         this.logger.log('Node added to opened list ' + o.id);
         (nodesList as any).orders.concat([o]);
-
-        this.sendOrderCreatedEvent(o);
+        ordersToCreate.push(o);
       }
     });
+    this.sendOrdersCreatedEvent(ordersToCreate);
   }
 
   private cleanHub(openedOrders: OrderDTO[], nodesList: OrderNode[]): void {
@@ -73,8 +73,8 @@ export class CronOrderService {
     );
   }
 
-  private sendOrderCreatedEvent(order: OrderDTO): void {
-    const event = new OrderCreatedEvent(order);
-    this.eventEmitter.emit(OrderCreatedEvent.EVENT_NAME, event);
+  private sendOrdersCreatedEvent(orders: OrderDTO[]): void {
+    const event = new OrdersCreatedEvent(orders);
+    this.eventEmitter.emit(OrdersCreatedEvent.EVENT_NAME, event);
   }
 }

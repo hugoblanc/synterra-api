@@ -4,7 +4,7 @@ import { addDays, format } from 'date-fns';
 import { forkJoin, Observable } from 'rxjs';
 import { catchError, map, mergeMap, take, tap } from 'rxjs/operators';
 import { OrderStatusUpdateEvent } from '../../../event/zelty/order-status-update.event';
-import { OrderDTO } from '../../../zelty/models/order';
+import { OrderDTO } from '../../../zelty/models/order.dto';
 import { OrderService } from '../../../zelty/services/order.service';
 import { OrderHubRepository } from './order-hub.repository';
 import { OrderListNode, OrderNode } from './order-spinal-domain.service';

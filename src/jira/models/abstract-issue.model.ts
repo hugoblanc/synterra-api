@@ -11,9 +11,11 @@ export class Fields {
   summary: string;
   issuetype: Project;
   parent?: Project;
-  customfield_10011?: string;
+  customfield_10011?: string; // epic name
   // assignee: Assignee;
   // priority: Priority;
+  customfield_10029?: string; // heure de livraison
+  customfield_10030?: string;
   labels: string[];
   description: string;
   constructor() {

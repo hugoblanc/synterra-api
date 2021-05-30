@@ -1,13 +1,13 @@
 import { Controller, Get, UseGuards } from '@nestjs/common';
 import { Observable } from 'rxjs';
-import { ReportingService } from './reporting.service';
+import { JwtAuthGuard } from '../core/auth/jwt.guard';
+import { OrderDTO } from '../zelty/models/order.dto';
 import {
   ActionOrderGroupedPerDay,
   AverageDuration,
+  AveragePrice,
 } from './order/order-reporting.service';
-import { OrderDTO } from '../zelty/models/order';
-import { JwtAuthGuard } from '../core/auth/jwt.guard';
-import { AveragePrice } from './order/order-reporting.service';
+import { ReportingService } from './reporting.service';
 
 @Controller('reporting')
 @UseGuards(JwtAuthGuard)

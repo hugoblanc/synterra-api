@@ -25,6 +25,25 @@ export interface OrderDTO {
   virtual_brand_name?: any;
   delivery_started: string;
   delivery_ended: string;
+  delivery_address?: Deliveryaddress;
+}
+
+export interface Deliveryaddress {
+  id: number;
+  remote_id?: any;
+  name: string;
+  street: string;
+  street_num: string;
+  zip_code: string;
+  city: string;
+  formatted_address: string;
+  google_id: string;
+  location?: any;
+  address_more: string;
+  floor: string;
+  door: string;
+  building: string;
+  code: string;
 }
 
 export interface ZeltyMenu {

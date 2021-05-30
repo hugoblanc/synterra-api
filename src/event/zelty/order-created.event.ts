@@ -1,6 +1,6 @@
-import { OrderDTO } from '../../zelty/models/order';
+import { OrderDTO } from '../../zelty/models/order.dto';
 
 export class OrderCreatedEvent {
-  public static readonly EVENT_NAME = 'order.created';
-  constructor(public readonly order: OrderDTO) {}
+  public static readonly EVENT_NAME = 'orders.created';
+  constructor(public readonly orders: OrderDTO[]) {}
 }

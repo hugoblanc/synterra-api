@@ -5,7 +5,7 @@ import { catchError, map, mergeMap, retryWhen } from 'rxjs/operators';
 import { genericRetryStrategy } from '../../core/rxjs/generic-retry-strategy';
 import { ZeltyHttpService } from '../core/zelty-http.service';
 import { ZeltyPage } from '../core/zelty-page';
-import { OrderDTO, OrderReponse as OrderResponse } from '../models/order';
+import { OrderDTO, OrderReponse as OrderResponse } from '../models/order.dto';
 
 @Injectable()
 export class OrderService {
@@ -17,9 +17,10 @@ export class OrderService {
 
   getOpenOrders(): Observable<OrderDTO[]> {
     const opened = 1;
+    const expand = 'delivery_address';
     return this.http
       .get<OrderResponse>(OrderService.BASE_RESOURCES, {
-        params: { opened },
+        params: { opened, expand },
       })
       .pipe(map((response) => response.orders));
   }
@@ -48,12 +49,13 @@ export class OrderService {
     const from = maxDate ?? '2020-04-04';
     const to = format(subDays(new Date(), 1), 'yyyy-MM-dd');
     const limit = OrderService.MAX_RESULT;
+    const expand = 'delivery_address';
 
     this.logger.log(`from:${from}, to:${to}, offset:${offset}, limit:${limit}`);
 
     return this.http
       .get<OrderResponse>(OrderService.BASE_RESOURCES, {
-        params: { from, to, offset, limit },
+        params: { from, to, offset, limit, expand },
       })
       .pipe(
         map((response) => {
@@ -69,6 +71,9 @@ export class OrderService {
   }
 
   getOrderById(id: number): Observable<OrderDTO> {
-    return this.http.get(OrderService.BASE_RESOURCES + '/' + id);
+    const expand = 'delivery_address';
+    return this.http.get(OrderService.BASE_RESOURCES + '/' + id, {
+      params: { expand },
+    });
   }
 }

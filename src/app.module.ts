@@ -1,4 +1,3 @@
-import { JiraTaskService } from './jira/jira-task.service';
 import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';

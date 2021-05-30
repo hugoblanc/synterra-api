@@ -1,46 +1,43 @@
 import { Injectable } from '@nestjs/common';
-import { OnEvent } from '@nestjs/event-emitter';
-import { forkJoin } from 'rxjs';
-import { mergeMap } from 'rxjs/operators';
-import { OrderCreatedEvent } from '../event/zelty/order-created.event';
-import { IssueFactory } from './issue.factory';
+import { forkJoin, Observable } from 'rxjs';
 import { JiraHttpService } from './jira-http.service';
+import { JiraEpic } from './models/jira-epic.model';
 import { IssueCreatedDto } from './models/jira-issue-created.dto';
+import { JiraSearchResults } from './models/jira-search-results.dto';
+import { JiraSubTask } from './models/jira-sub-task.model';
+import { JiraTask } from './models/jira-task.model';
 
 @Injectable()
 export class JiraTaskService {
-  constructor(private readonly jiraHttp: JiraHttpService) {
-    // this.createTask()
-    //   .pipe(
-    //     catchError((error) => {
-    //       console.log(error);
-    //       return of(error);
-    //     }),
-    //   )
-    //   .subscribe((result) => {
-    //     console.log('Resultat ---------------');
-    //     console.log(result);
-    //   });
+  constructor(private readonly http: JiraHttpService) {}
+
+  getById(id: string) {
+    return this.http.get('agile/1.0/issue/' + id);
   }
 
-  @OnEvent(OrderCreatedEvent.EVENT_NAME)
-  createTask(createdEvent: OrderCreatedEvent) {
-    const issueFactory = new IssueFactory(createdEvent.order);
+  searchBySummary(summary: string): Observable<JiraSearchResults> {
+    const jql = `summary~"${summary}"`;
+    return this.http.get<JiraSearchResults>('api/3/search?jql=' + jql, {});
+  }
 
-    console.log('--------------- Event order created ---------------- ');
+  moveTaskIntoEpic(epicId: string, taskId: string): Observable<void> {
+    return this.http.post<void>(`agile/1.0/epic/${epicId}/issue`, {
+      issues: [taskId],
+    });
+  }
 
-    console.log(issueFactory.getTask());
-    console.log(issueFactory.getSubTasks());
-    const mainTask = issueFactory.getTask();
-    this.jiraHttp.post<IssueCreatedDto>('issue', mainTask).pipe(
-      mergeMap((issueCreatedDto: IssueCreatedDto) => {
-        issueFactory.addParentId(issueCreatedDto.id);
-        const subTasks = issueFactory.getSubTasks();
-        const postSubTasks$ = subTasks.map((sub) =>
-          this.jiraHttp.post('issue', sub),
-        );
-        return forkJoin(postSubTasks$);
-      }),
+  postEpic(epic: JiraEpic): Observable<IssueCreatedDto> {
+    return this.http.post<IssueCreatedDto>('api/2/issue', epic);
+  }
+
+  postMainTask(mainTask: JiraTask): Observable<IssueCreatedDto> {
+    return this.http.post<IssueCreatedDto>('api/2/issue', mainTask);
+  }
+
+  postSubTasks(subTasks: JiraSubTask[]): Observable<IssueCreatedDto[]> {
+    const postSubTasks$ = subTasks.map((sub) =>
+      this.http.post('api/2/issue', sub),
     );
+    return forkJoin(postSubTasks$);
   }
 }

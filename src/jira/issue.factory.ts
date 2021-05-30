@@ -1,5 +1,5 @@
 import { dishFinder } from '../zelty/core/dish-finder.utils';
-import { OrderDTO } from '../zelty/models/order';
+import { OrderDTO } from '../zelty/models/order.dto';
 import { JiraSubTask } from './models/jira-sub-task.model';
 import { JiraTask } from './models/jira-task.model';
 export class IssueFactory {
@@ -7,9 +7,9 @@ export class IssueFactory {
   private subTasks: JiraSubTask[];
 
   constructor(public readonly order: OrderDTO) {
-    this.task = new JiraTask(order.ref);
+    this.task = new JiraTask(order);
     const dishes = dishFinder(order);
-    this.subTasks = dishes.map((d) => new JiraSubTask(d.name));
+    this.subTasks = dishes.map((d) => new JiraSubTask(d.name, order));
   }
 
   public addParentId(parentId: string): void {

@@ -1,19 +1,28 @@
-import { OrderDTO, DishOrder, ZeltyMenu } from '../models/order';
+import { DishOrder, OrderDTO, ZeltyMenu } from '../models/order.dto';
 
-export function dishFinder(order: OrderDTO) {
-  const dishes: DishOrder[] = [];
-  for (const content of order.contents) {
-    if (content.type === 'dish') {
+export function dishFinder(order: OrderDTO): DishOrder[] {
+  return findDishInContentRecursively(order.contents);
+}
+
+function findDishInContentRecursively(
+  contents: (ZeltyMenu | DishOrder)[],
+): DishOrder[] {
+  const dishes = [];
+  if (!contents) {
+    return dishes;
+  }
+
+  for (const content of contents) {
+    if (content.type === 'dish' && !isDeliveryFees(content)) {
       dishes.push(content as DishOrder);
     } else {
       const menu: ZeltyMenu = content as ZeltyMenu;
-      for (const content of menu.contents) {
-        if (content.type === 'dish') {
-          dishes.push(content as DishOrder);
-        }
-      }
+      dishes.push(...findDishInContentRecursively(menu.contents));
     }
   }
-
   return dishes;
+}
+
+function isDeliveryFees(content) {
+  return content?.item_id === 527933;
 }

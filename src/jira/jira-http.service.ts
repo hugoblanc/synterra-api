@@ -5,7 +5,7 @@ import { map } from 'rxjs/operators';
 
 @Injectable()
 export class JiraHttpService {
-  private static BASE_URL = 'https://hubert-campagne.atlassian.net/rest/api/2/';
+  private static BASE_URL = 'https://hubert-campagne.atlassian.net/rest/';
 
   private static JIRA_TOKEN =
     'Basic Y29udGFjdEBzeW50ZXJyYS5mcjo0TWRRMVV2S0dzWW9VYU80alFYajlBOTY=';
@@ -20,7 +20,10 @@ export class JiraHttpService {
     // });
   }
 
-  public get<T = any>(url: string, config?: AxiosRequestConfig): Observable<T> {
+  public get<T = any>(
+    url: string,
+    config: AxiosRequestConfig = {},
+  ): Observable<T> {
     config.headers = { Authorization: JiraHttpService.JIRA_TOKEN };
     return this.http
       .get<T>(JiraHttpService.BASE_URL + url, config)

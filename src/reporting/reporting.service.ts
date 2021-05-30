@@ -1,8 +1,6 @@
-import { Observable } from 'rxjs';
-
 import { Injectable } from '@nestjs/common';
-
-import { OrderDTO } from '../zelty/models/order';
+import { Observable } from 'rxjs';
+import { OrderDTO } from '../zelty/models/order.dto';
 import { MatrixReportingService } from './matrix/matrix-reporting.service';
 import {
   ActionOrderGroupedPerDay,
