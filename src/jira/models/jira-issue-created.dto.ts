@@ -3,3 +3,7 @@ export interface IssueCreatedDto {
   key: string;
   self: string;
 }
+
+export interface CreatePriority {
+  id: string;
+}

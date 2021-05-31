@@ -7,7 +7,6 @@ import { OrderHubRepository } from './order-hub.repository';
 export type OrderNode = OrderDTO & SpinalInterface;
 export type OrderListNode = OrderNode[] & SpinalInterface & { orders: any[] };
 
-// TODO remove dupplication with dish-spin-domain
 @Injectable()
 export class OrderSpinalDomainService {
   constructor(private readonly hubRepository: OrderHubRepository) {}

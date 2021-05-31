@@ -46,8 +46,8 @@ export interface DishDTO {
   disable_after?: any;
   o: number;
   zc_only: boolean;
-  meta: MetaDTO;
+  // meta: MetaDTO;
   quantities?: QuantityEntity[];
 }
 
-interface MetaDTO {}
+// interface MetaDTO {}

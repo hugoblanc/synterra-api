@@ -8,24 +8,38 @@ import { IssueFactory } from '../../jira/issue.factory';
 import { JiraTaskService } from '../../jira/jira-task.service';
 import { JiraEpic } from '../../jira/models/jira-epic.model';
 import { IssueCreatedDto } from '../../jira/models/jira-issue-created.dto';
+import { DishSpinalDomainService } from '../../spinal/domain/dish-spinal/dish-spinal-domain.service';
 import { OrderDTO } from '../../zelty/models/order.dto';
 
 @Injectable()
 export class TaskService {
   private logger = new Logger(TaskService.name);
 
-  constructor(private readonly jiraTaskService: JiraTaskService) {}
+  constructor(
+    private readonly jiraTaskService: JiraTaskService,
+    private readonly dishSpinalService: DishSpinalDomainService,
+  ) {}
 
   @OnEvent(OrderCreatedEvent.EVENT_NAME)
-  createTask(createdEvent: OrderCreatedEvent) {
-    const orders = createdEvent.orders;
-    const factories = orders.map((order) => new IssueFactory(order));
+  async createTask(createdEvent: OrderCreatedEvent) {
+    this.dishSpinalService
+      .findAll()
+      .pipe(
+        mergeMap((dishes) => {
+          const orders = createdEvent.orders;
 
-    const createJiraObjects$ = factories.map((factory) =>
-      this.createJiraObjects(factory),
-    );
+          const factories = orders.map(
+            (order) => new IssueFactory(order, dishes),
+          );
 
-    concat(...createJiraObjects$).subscribe();
+          const createJiraObjects$ = factories.map((factory) =>
+            this.createJiraObjects(factory),
+          );
+
+          return concat(...createJiraObjects$);
+        }),
+      )
+      .subscribe();
   }
 
   private createJiraObjects(factory: IssueFactory) {

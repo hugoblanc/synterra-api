@@ -59,6 +59,7 @@ export interface DishOrder {
   id: number;
   type: string;
   name: string;
+  item_id: number;
   contents: Content[];
 }
 

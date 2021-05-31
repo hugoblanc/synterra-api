@@ -1,3 +1,4 @@
+import { DishDTO } from '../models/dish';
 import { DishOrder, OrderDTO, ZeltyMenu } from '../models/order.dto';
 
 export function dishFinder(order: OrderDTO): DishOrder[] {

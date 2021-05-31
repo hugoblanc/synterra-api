@@ -15,9 +15,10 @@ export class Fields {
   // assignee: Assignee;
   // priority: Priority;
   customfield_10029?: string; // heure de livraison
-  customfield_10030?: string;
+  customfield_10030?: string; // heure max départ livraison
   labels: string[];
   description: string;
+  priority: { id: string };
   constructor() {
     this.project = { id: '10001' };
   }

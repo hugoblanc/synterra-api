@@ -23,16 +23,18 @@ export class CronOrderService {
   handleCron() {
     this.logger.debug('*/15 * * * * *');
 
-    const load$ = this.openOrdersHubRepository.load().pipe(take(1));
+    const spinalOrders$ = this.openOrdersHubRepository.load().pipe(take(1));
 
     const opened$ = this.orderService.getOpenOrders();
 
-    forkJoin([opened$, load$]).subscribe((value: [OrderDTO[], OrderNode[]]) => {
-      const openedOrders = value[0];
-      const nodesList = value[1];
-      this.addMissingOrderToHub(openedOrders, nodesList);
-      this.cleanHub(openedOrders, nodesList);
-    });
+    forkJoin([opened$, spinalOrders$]).subscribe(
+      (value: [OrderDTO[], OrderNode[]]) => {
+        const openedOrders = value[0];
+        const nodesList = value[1];
+        this.addMissingOrderToHub(openedOrders, nodesList);
+        this.cleanHub(openedOrders, nodesList);
+      },
+    );
   }
 
   private addMissingOrderToHub(
