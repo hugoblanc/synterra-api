@@ -22,24 +22,22 @@ export class TaskService {
 
   @OnEvent(OrderCreatedEvent.EVENT_NAME)
   async createTask(createdEvent: OrderCreatedEvent) {
-    this.dishSpinalService
-      .findAll()
-      .pipe(
-        mergeMap((dishes) => {
-          const orders = createdEvent.orders;
+    this.dishSpinalService.findAll().pipe(
+      mergeMap((dishes) => {
+        const orders = createdEvent.orders;
 
-          const factories = orders.map(
-            (order) => new IssueFactory(order, dishes),
-          );
+        const factories = orders.map(
+          (order) => new IssueFactory(order, dishes),
+        );
 
-          const createJiraObjects$ = factories.map((factory) =>
-            this.createJiraObjects(factory),
-          );
+        const createJiraObjects$ = factories.map((factory) =>
+          this.createJiraObjects(factory),
+        );
 
-          return concat(...createJiraObjects$);
-        }),
-      )
-      .subscribe();
+        return concat(...createJiraObjects$);
+      }),
+    );
+    // .subscribe();
   }
 
   private createJiraObjects(factory: IssueFactory) {
