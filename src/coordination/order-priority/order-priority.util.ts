@@ -1,4 +1,7 @@
-import { CreatePriority } from '../../jira/models/jira-issue-created.dto';
+import {
+  CreatePriority,
+  CreateComponent,
+} from '../../jira/models/jira-issue-created.dto';
 import { DishDTO } from '../../zelty/models/dish';
 
 const TAG_PRIORITIES = new Map<number, string>([
@@ -9,6 +12,7 @@ const TAG_PRIORITIES = new Map<number, string>([
   [68236, '4'],
   [68237, '4'],
 ]);
+
 export function selectPriority(dish: DishDTO): CreatePriority | undefined {
   const priority = dish.tags
     .filter((t) => TAG_PRIORITIES.has(t))
@@ -16,6 +20,69 @@ export function selectPriority(dish: DishDTO): CreatePriority | undefined {
 
   return priority[0] ? { id: priority[0] } : undefined;
 }
+
+const TAG_COMPOSANT = new Map<number, string>([
+  [68231, '10006'], //BURGER BURGER
+  [68232, '10009'],
+  [68234, '10007'], // Accompagnement - Friteuse
+  [68233, '10008'], // Salade
+  // [68236, '4'],
+  // [68237, '4'],
+]);
+
+export function findJiraComponent(dish: DishDTO): CreateComponent | undefined {
+  const component = dish.tags
+    .filter((t) => TAG_COMPOSANT.has(t))
+    .map((t) => TAG_COMPOSANT.get(t));
+  return component[0] ? { id: component[0] } : undefined;
+}
+
+// [
+//   {
+//       "self": "https://hubert-campagne.atlassian.net/rest/api/2/component/10006",
+//       "id": "10006",
+//       "name": "BURGER",
+//       "description": "Poste burger de la cuisine.",
+//       "assigneeType": "PROJECT_DEFAULT",
+//       "realAssigneeType": "PROJECT_DEFAULT",
+//       "isAssigneeTypeValid": false,
+//       "project": "HCT",
+//       "projectId": 10001
+//   },
+//   {
+//       "self": "https://hubert-campagne.atlassian.net/rest/api/2/component/10007",
+//       "id": "10007",
+//       "name": "FRITEUSE",
+//       "description": "Poste friteuse de la cuisine",
+//       "assigneeType": "PROJECT_DEFAULT",
+//       "realAssigneeType": "PROJECT_DEFAULT",
+//       "isAssigneeTypeValid": false,
+//       "project": "HCT",
+//       "projectId": 10001
+//   },
+//   {
+//       "self": "https://hubert-campagne.atlassian.net/rest/api/2/component/10008",
+//       "id": "10008",
+//       "name": "SALADE",
+//       "description": "Poste salade de la cuisine",
+//       "assigneeType": "PROJECT_DEFAULT",
+//       "realAssigneeType": "PROJECT_DEFAULT",
+//       "isAssigneeTypeValid": false,
+//       "project": "HCT",
+//       "projectId": 10001
+//   },
+//   {
+//       "self": "https://hubert-campagne.atlassian.net/rest/api/2/component/10009",
+//       "id": "10009",
+//       "name": "THAI",
+//       "description": "Poste thaï de la cuisine",
+//       "assigneeType": "PROJECT_DEFAULT",
+//       "realAssigneeType": "PROJECT_DEFAULT",
+//       "isAssigneeTypeValid": false,
+//       "project": "HCT",
+//       "projectId": 10001
+//   }
+// ]
 
 // burgers : très haute priorité
 

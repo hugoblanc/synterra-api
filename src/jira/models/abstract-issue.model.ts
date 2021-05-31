@@ -1,3 +1,5 @@
+import { CreateComponent, CreatePriority } from './jira-issue-created.dto';
+
 export abstract class AbstractIssue {
   fields: Fields;
 
@@ -16,9 +18,12 @@ export class Fields {
   // priority: Priority;
   customfield_10029?: string; // heure de livraison
   customfield_10030?: string; // heure max départ livraison
+  customfield_10031?: string; // heure max début de préparation
+  components?: CreateComponent[]; // heure max début de préparation
+  timeestimate?: number; // estimation en second
   labels: string[];
   description: string;
-  priority: { id: string };
+  priority: CreatePriority;
   constructor() {
     this.project = { id: '10001' };
   }

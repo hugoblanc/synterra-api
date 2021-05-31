@@ -1,13 +1,21 @@
-import { DishOrder, OrderDTO } from 'src/zelty/models/order.dto';
-import { calculateMaxDeliveryTime } from '../../coordination/order-timing/order-timing.utils';
+import { subMinutes } from 'date-fns';
+import {
+  calculateMaxDeliveryTime,
+  DishPreparationInformation,
+  DishPreparationType,
+} from '../../coordination/order-timing/order-timing.utils';
+import { DishOrder, OrderDTO } from '../../zelty/models/order.dto';
 import { AbstractIssue } from './abstract-issue.model';
-import { CreatePriority } from './jira-issue-created.dto';
+import { CreateComponent, CreatePriority } from './jira-issue-created.dto';
 
 export class JiraSubTask extends AbstractIssue {
   constructor(
     dish: DishOrder,
     parentOrder: OrderDTO,
+    index: number,
     priority?: CreatePriority,
+    preparation?: DishPreparationInformation,
+    component?: CreateComponent,
   ) {
     super();
     this.fields.issuetype = { id: '10002' };
@@ -16,8 +24,39 @@ export class JiraSubTask extends AbstractIssue {
     this.fields.customfield_10030 = calculateMaxDeliveryTime(
       parentOrder.due_date,
     );
+    const {
+      maxPreparationStartDate,
+      durationEstimation,
+    } = this.calculTimeOffset(index, preparation);
+    this.fields.timeestimate = durationEstimation * 60;
+    this.fields.customfield_10031 = maxPreparationStartDate.toISOString();
+    this.fields.components = [component];
     this.fields.priority = priority;
     this.fields.description = parentOrder.delivery_address?.formatted_address;
     this.fields.summary = dish.name;
+  }
+
+  private calculTimeOffset(
+    index = 0,
+    preparation?: DishPreparationInformation,
+  ) {
+    if (!preparation) {
+      return;
+    }
+    const deliveryDate = new Date(this.fields.customfield_10030);
+    let durationEstimation: number;
+
+    if (preparation.preparationType === DishPreparationType.PARALLELIZABLE) {
+      durationEstimation = preparation.duration;
+    } else {
+      durationEstimation = preparation.duration * (index + 1);
+    }
+
+    const maxPreparationStartDate = subMinutes(
+      deliveryDate,
+      durationEstimation,
+    );
+
+    return { maxPreparationStartDate, durationEstimation };
   }
 }

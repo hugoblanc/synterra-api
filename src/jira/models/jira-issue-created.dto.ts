@@ -7,3 +7,7 @@ export interface IssueCreatedDto {
 export interface CreatePriority {
   id: string;
 }
+
+export interface CreateComponent {
+  id: string;
+}
