@@ -19,21 +19,24 @@ export class JiraSubTask extends AbstractIssue {
   ) {
     super();
     this.fields.issuetype = { id: '10002' };
-    this.fields.labels = ['Plat'];
+    this.fields.labels = ['Plat', parentOrder.delivery_address?.city];
+    this.fields.summary = dish.name;
     this.fields.customfield_10029 = parentOrder.due_date;
+    this.fields.priority = priority;
+    this.fields.components = [component];
+    this.fields.description = '';
+
     this.fields.customfield_10030 = calculateMaxDeliveryTime(
       parentOrder.due_date,
+      parentOrder.delivery_address?.city,
     );
+
     const {
       maxPreparationStartDate,
       durationEstimation,
     } = this.calculTimeOffset(index, preparation);
-    this.fields.timeestimate = durationEstimation * 60;
     this.fields.customfield_10031 = maxPreparationStartDate.toISOString();
-    this.fields.components = [component];
-    this.fields.priority = priority;
-    this.fields.description = parentOrder.delivery_address?.formatted_address;
-    this.fields.summary = dish.name;
+    this.fields.timeestimate = durationEstimation * 60;
   }
 
   private calculTimeOffset(
