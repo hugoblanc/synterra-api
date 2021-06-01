@@ -1,7 +1,7 @@
 import {
   findJiraComponent,
   selectPriority,
-} from 'src/coordination/order-priority/order-priority.util';
+} from '../coordination/order-priority/order-priority.util';
 import { getPreparationInformationsByDish } from '../coordination/order-timing/order-timing.utils';
 import { dishFinder } from '../zelty/core/dish-finder.utils';
 import { DishDTO } from '../zelty/models/dish';

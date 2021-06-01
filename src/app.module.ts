@@ -14,7 +14,6 @@ import { ZeltyModule } from './zelty/zelty.module';
 
 @Module({
   imports: [
-    JiraModule,
     HooksModule,
     SpinalModule,
     ZeltyModule,
@@ -22,6 +21,7 @@ import { ZeltyModule } from './zelty/zelty.module';
     DishModule,
     DomainModule,
     ReportingModule,
+    JiraModule,
     AuthModule,
   ],
   controllers: [AppController],

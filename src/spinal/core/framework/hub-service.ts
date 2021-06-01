@@ -3,8 +3,10 @@ import { Observable } from 'rxjs';
 import { catchError, map, mergeMap, skip, take } from 'rxjs/operators';
 import { SpinalService } from '../hub/spinal.service';
 import { SpinalInterface } from './spinal-model';
+
 export abstract class HubRepository<T extends SpinalInterface> {
   private logger = new Logger(HubRepository.name);
+
   protected abstract readonly NODE_NAME: string;
   protected abstract readonly ROOT_NAME: string;
   protected abstract get emptyNode(): SpinalInterface;
@@ -22,6 +24,7 @@ export abstract class HubRepository<T extends SpinalInterface> {
   }
 
   store(node = this.emptyNode) {
+    console.log(this.spinal);
     return this.spinal.store(node, this.NODE_NAME);
   }
 

@@ -1,6 +1,6 @@
-import { OrderDTO } from 'src/zelty/models/order.dto';
 import { calculateMaxDeliveryTime } from '../../coordination/order-timing/order-timing.utils';
 import { AbstractIssue } from './abstract-issue.model';
+import { OrderDTO } from '../../zelty/models/order.dto';
 export class JiraTask extends AbstractIssue {
   constructor(order: OrderDTO) {
     super();

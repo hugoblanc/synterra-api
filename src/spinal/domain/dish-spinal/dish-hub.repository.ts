@@ -20,5 +20,9 @@ export class DishHubRepository extends HubRepository<DishListNode> {
 
   constructor(spinal: SpinalService) {
     super(spinal);
+    console.log(
+      'Spinal repository ------------------------------------------------',
+    );
+    console.log(spinal);
   }
 }
