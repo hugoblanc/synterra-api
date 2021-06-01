@@ -5,7 +5,7 @@ export class JiraTask extends AbstractIssue {
   constructor(order: OrderDTO) {
     super();
     this.fields.issuetype = { id: '10001' };
-    this.fields.labels = [order.delivery_address?.city];
+    this.fields.labels = [order.delivery_address?.city.replace(/\s+/g, '')];
     this.fields.customfield_10029 = order.due_date;
     this.fields.customfield_10030 = calculateMaxDeliveryTime(
       order.due_date,

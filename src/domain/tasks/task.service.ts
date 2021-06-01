@@ -3,9 +3,9 @@ import { OnEvent } from '@nestjs/event-emitter';
 import { concat, forkJoin, merge, Observable } from 'rxjs';
 import { filter, map, mergeMap, tap } from 'rxjs/operators';
 import { OrderCreatedEvent } from '../../event/zelty/order-created.event';
-import { createSummaryFromDate } from '../../jira/core/jira-summary.utils';
-import { IssueFactory } from '../../jira/issue.factory';
-import { JiraTaskService } from '../../jira/jira-task.service';
+import { IssueFactory } from '../../jira/jira-task/issue.factory';
+import { createSummaryFromDate } from '../../jira/jira-task/jira-summary.utils';
+import { JiraTaskService } from '../../jira/jira-task/jira-task.service';
 import { JiraEpic } from '../../jira/models/jira-epic.model';
 import { IssueCreatedDto } from '../../jira/models/jira-issue-created.dto';
 import { DishSpinalDomainService } from '../../spinal/domain/dish-spinal/dish-spinal-domain.service';
@@ -22,22 +22,24 @@ export class TaskService {
 
   @OnEvent(OrderCreatedEvent.EVENT_NAME)
   async createTask(createdEvent: OrderCreatedEvent) {
-    this.dishSpinalService.findAll().pipe(
-      mergeMap((dishes) => {
-        const orders = createdEvent.orders;
+    this.dishSpinalService
+      .findAll()
+      .pipe(
+        mergeMap((dishes) => {
+          const orders = createdEvent.orders;
 
-        const factories = orders.map(
-          (order) => new IssueFactory(order, dishes),
-        );
+          const factories = orders.map(
+            (order) => new IssueFactory(order, dishes),
+          );
 
-        const createJiraObjects$ = factories.map((factory) =>
-          this.createJiraObjects(factory),
-        );
+          const createJiraObjects$ = factories.map((factory) =>
+            this.createJiraObjects(factory),
+          );
 
-        return concat(...createJiraObjects$);
-      }),
-    );
-    // .subscribe();
+          return concat(...createJiraObjects$);
+        }),
+      )
+      .subscribe();
   }
 
   private createJiraObjects(factory: IssueFactory) {

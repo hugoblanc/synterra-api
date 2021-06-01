@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { forkJoin, Observable } from 'rxjs';
-import { JiraHttpService } from './jira-http.service';
-import { JiraEpic } from './models/jira-epic.model';
-import { IssueCreatedDto } from './models/jira-issue-created.dto';
-import { JiraSearchResults } from './models/jira-search-results.dto';
-import { JiraSubTask } from './models/jira-sub-task.model';
-import { JiraTask } from './models/jira-task.model';
+import { JiraHttpService } from '../jira-http/jira-http.service';
+import { JiraEpic } from '../models/jira-epic.model';
+import { IssueCreatedDto } from '../models/jira-issue-created.dto';
+import { JiraSearchResults } from '../models/jira-search-results.dto';
+import { JiraSubTask } from '../models/jira-sub-task.model';
+import { JiraTask } from '../models/jira-task.model';
+import { IssueChangelogDTO } from '../jira-analytics/models/jira-issue-changelog.dto';
 
 @Injectable()
 export class JiraTaskService {
@@ -13,6 +14,13 @@ export class JiraTaskService {
 
   getById(id: string) {
     return this.http.get('agile/1.0/issue/' + id);
+  }
+
+  getWithChangelogById(id: string) {
+    const expand = 'changelog';
+    return this.http.get<IssueChangelogDTO>('agile/1.0/issue/' + id, {
+      params: { expand },
+    });
   }
 
   searchBySummary(summary: string): Observable<JiraSearchResults> {

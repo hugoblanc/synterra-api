@@ -10,15 +10,7 @@ export class JiraHttpService {
   private static JIRA_TOKEN =
     'Basic Y29udGFjdEBzeW50ZXJyYS5mcjo0TWRRMVV2S0dzWW9VYU80alFYajlBOTY=';
 
-  constructor(private readonly http: HttpService) {
-    // this.http.axiosRef;
-    // this.http.axiosRef.interceptors.request.use((config) => {
-    //   config.url = JiraHttpService.BASE_URL + config.url;
-    //   console.log(config.url);
-    //   config.headers.Authorization = JiraHttpService.JIRA_TOKEN;
-    //   return config;
-    // });
-  }
+  constructor(private readonly http: HttpService) {}
 
   public get<T = any>(
     url: string,

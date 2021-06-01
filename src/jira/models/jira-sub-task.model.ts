@@ -19,11 +19,16 @@ export class JiraSubTask extends AbstractIssue {
   ) {
     super();
     this.fields.issuetype = { id: '10002' };
-    this.fields.labels = ['Plat', parentOrder.delivery_address?.city];
+    this.fields.labels = [
+      'Plat',
+      parentOrder.delivery_address?.city.replace(/\s+/g, ''),
+    ];
     this.fields.summary = dish.name;
     this.fields.customfield_10029 = parentOrder.due_date;
     this.fields.priority = priority;
-    this.fields.components = [component];
+    if (component) {
+      this.fields.components = [component];
+    }
     this.fields.description = '';
 
     this.fields.customfield_10030 = calculateMaxDeliveryTime(
@@ -31,18 +36,10 @@ export class JiraSubTask extends AbstractIssue {
       parentOrder.delivery_address?.city,
     );
 
-    const {
-      maxPreparationStartDate,
-      durationEstimation,
-    } = this.calculTimeOffset(index, preparation);
-    this.fields.customfield_10031 = maxPreparationStartDate.toISOString();
-    this.fields.timeestimate = durationEstimation * 60;
+    this.setupTimeOffset(index, preparation);
   }
 
-  private calculTimeOffset(
-    index = 0,
-    preparation?: DishPreparationInformation,
-  ) {
+  private setupTimeOffset(index = 0, preparation?: DishPreparationInformation) {
     if (!preparation) {
       return;
     }
@@ -60,6 +57,7 @@ export class JiraSubTask extends AbstractIssue {
       durationEstimation,
     );
 
-    return { maxPreparationStartDate, durationEstimation };
+    this.fields.customfield_10031 = maxPreparationStartDate?.toISOString();
+    // this.fields.timeestimate = durationEstimation * 60;
   }
 }

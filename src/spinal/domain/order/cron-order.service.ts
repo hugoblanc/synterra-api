@@ -19,7 +19,7 @@ export class CronOrderService {
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
-  @Cron('*/15 * * * * *')
+  @Cron('*/30 * * * * *')
   handleCron() {
     this.logger.debug('*/15 * * * * *');
 

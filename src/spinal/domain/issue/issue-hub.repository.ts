@@ -4,11 +4,9 @@ import { SpinalService } from '../../core/hub/spinal.service';
 import { IssueListModel } from '../../nodes/issue-list';
 
 @Injectable()
-export class IssueHubRepository extends HubRepository<any> {
+export class IssueHubRepository extends HubRepository<IssueListModel> {
   protected get emptyNode(): Model {
-    const emptyNode = {};
-    emptyNode[this.ROOT_NAME] = [];
-    return new IssueListModel(emptyNode);
+    return new IssueListModel();
   }
 
   protected readonly ROOT_NAME = 'issues';
