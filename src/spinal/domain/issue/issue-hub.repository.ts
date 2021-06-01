@@ -1,12 +1,13 @@
+import { Injectable } from '@nestjs/common';
 import { HubRepository } from '../../core/framework/hub-service';
-import { SpinalInterface } from '../../core/framework/spinal-model';
 import { SpinalService } from '../../core/hub/spinal.service';
 import { IssueListModel } from '../../nodes/issue-list';
+
+@Injectable()
 export class IssueHubRepository extends HubRepository<any> {
-  protected get emptyNode(): SpinalInterface {
+  protected get emptyNode(): Model {
     const emptyNode = {};
     emptyNode[this.ROOT_NAME] = [];
-    // return new (require('../../nodes/issue-lists').IssueListModel)(emptyNode);
     return new IssueListModel(emptyNode);
   }
 
@@ -15,9 +16,5 @@ export class IssueHubRepository extends HubRepository<any> {
 
   constructor(spinal: SpinalService) {
     super(spinal);
-    console.log(
-      'Spinal repository ------------------------------------------------',
-    );
-    console.log(spinal);
   }
 }

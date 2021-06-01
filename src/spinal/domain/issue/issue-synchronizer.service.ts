@@ -1,13 +1,17 @@
-import { Injectable } from '@nestjs/common';
-import { SpinalInterface } from 'src/spinal/core/framework/spinal-model';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { IssueHubRepository } from './issue-hub.repository';
 
 @Injectable()
-export class IssueSynchronizerService {
+export class IssueSynchronizerService implements OnModuleInit {
+  logger = new Logger(IssueSynchronizerService.name);
   constructor(private readonly hub: IssueHubRepository) {}
 
+  onModuleInit(): void {
+    this.logger.log('Checking dish spinal state');
+  }
+
   store() {
-    const value: any[] = [];
-    this.hub.store((value as unknown) as SpinalInterface).subscribe();
+    // const value: any[] = [];
+    // this.hub.store((value as unknown) as Model).subscribe();
   }
 }

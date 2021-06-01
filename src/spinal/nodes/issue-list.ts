@@ -1,13 +1,8 @@
-import { Model } from 'spinal-core-connectorjs';
-import { SpinalInterface } from '../core/framework/spinal-model';
+require('spinal-core-connectorjs');
 
-export class IssueListModel extends Model implements SpinalInterface {
+export class IssueListModel extends Model {
   constructor(attrs: any) {
-    super(); // 2
-    this.add_attr(attrs);
-  }
-
-  addAttr(attrs: any) {
+    super();
     this.add_attr(attrs);
   }
 }

@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { Observable } from 'rxjs';
-import { SpinalInterface } from '../framework/spinal-model';
 
 @Injectable()
 export class SpinalService implements OnModuleInit {
@@ -33,7 +32,7 @@ export class SpinalService implements OnModuleInit {
     });
   }
 
-  public load<T extends SpinalInterface>(name: string): Observable<T> {
+  public load<T extends Model>(name: string): Observable<T> {
     return new Observable<T>((observer) => {
       this.spinalCore.load(
         this.conn,

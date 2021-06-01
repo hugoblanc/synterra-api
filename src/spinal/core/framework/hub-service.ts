@@ -2,14 +2,13 @@ import { Logger } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { catchError, map, mergeMap, skip, take } from 'rxjs/operators';
 import { SpinalService } from '../hub/spinal.service';
-import { SpinalInterface } from './spinal-model';
 
-export abstract class HubRepository<T extends SpinalInterface> {
+export abstract class HubRepository<T extends Model> {
   private logger = new Logger(HubRepository.name);
 
   protected abstract readonly NODE_NAME: string;
   protected abstract readonly ROOT_NAME: string;
-  protected abstract get emptyNode(): SpinalInterface;
+  protected abstract get emptyNode(): Model;
 
   constructor(protected readonly spinal: SpinalService) {}
 

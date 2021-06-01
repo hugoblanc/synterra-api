@@ -14,8 +14,8 @@ import { ZeltyModule } from './zelty/zelty.module';
 
 @Module({
   imports: [
-    HooksModule,
     SpinalModule,
+    HooksModule,
     ZeltyModule,
     ConfigModule,
     DishModule,
