@@ -7,6 +7,7 @@ import { DishDTO } from '../../zelty/models/dish';
 const TAG_PRIORITIES = new Map<number, string>([
   [68231, '1'],
   [68232, '1'],
+  [70806, '1'],
   [68234, '2'],
   [68233, '3'],
   [68236, '4'],
@@ -23,6 +24,7 @@ export function selectPriority(dish: DishDTO): CreatePriority | undefined {
 
 const TAG_COMPOSANT = new Map<number, string>([
   [68231, '10006'], //BURGER BURGER
+  [70806, '10006'], //Menu enfant aka cheeseburger
   [68232, '10009'],
   [68234, '10007'], // Accompagnement - Friteuse
   [68233, '10008'], // Salade
