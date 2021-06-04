@@ -13,15 +13,17 @@ import { OrderNode } from './order-spinal-domain.service';
 export class CronOrderService {
   private logger = new Logger(CronOrderService.name);
 
+  static readonly CRON_TIME = '*/30 * * * * *';
+
   constructor(
     private readonly openOrdersHubRepository: OpenOrdersHubRepository,
     private readonly orderService: OrderService,
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
-  @Cron('*/30 * * * * *')
+  @Cron(CronOrderService.CRON_TIME)
   handleCron() {
-    this.logger.debug('*/15 * * * * *');
+    this.logger.debug(CronOrderService.CRON_TIME);
 
     const spinalOrders$ = this.openOrdersHubRepository.load().pipe(take(1));
 

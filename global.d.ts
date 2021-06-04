@@ -17,14 +17,14 @@ declare class Model {
   get_state(): any;
   rem_attr(): any;
   mod_attr(): any;
-  set_attr(): any;
+  set_attr(attr: any): any;
 }
 
 declare class Lst<T> extends Model {
   static_length(): number;
   default_value(): number;
   base_type(): number;
-  get(): number;
+  get(): T[];
   size(): number;
   toString(): string;
   equals(lst: Lst<T>): boolean;
