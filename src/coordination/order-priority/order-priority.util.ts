@@ -1,6 +1,6 @@
 import {
-  CreatePriority,
   CreateComponent,
+  CreatePriority,
 } from '../../jira/models/jira-issue-created.dto';
 import { DishDTO } from '../../zelty/models/dish';
 
@@ -34,7 +34,7 @@ export function findJiraComponent(dish: DishDTO): CreateComponent | undefined {
   const component = dish.tags
     .filter((t) => TAG_COMPOSANT.has(t))
     .map((t) => TAG_COMPOSANT.get(t));
-  return component[0] ? { id: component[0] } : undefined;
+  return component[0] ? { id: component[0] } : { id: '10010' };
 }
 
 // [
