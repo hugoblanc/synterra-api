@@ -46,7 +46,7 @@ export class CronOrderService {
     const nodes = (nodesList as any).orders.get();
     const ordersToCreate = [];
     openedOrders.forEach((o) => {
-      const node = nodes.find((n: OrderNode) => n.id === o.id);
+      const node = nodes.find((n: OrderNode) => n.id === o.id && o.ref != null);
       if (!node) {
         this.logger.log('Node added to opened list ' + o.id);
         (nodesList as any).orders.concat([o]);
