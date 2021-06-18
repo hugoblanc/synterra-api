@@ -1,5 +1,4 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { mergeMap } from 'rxjs/operators';
 import { IssueSpinalDomainService } from '../../spinal/domain/issue/issue-spinal-domain.service';
 import { IssueSynchronizerService } from '../../spinal/domain/issue/issue-synchronizer.service';
 import { JiraTaskService } from '../jira-task/jira-task.service';
@@ -22,8 +21,8 @@ export class JiraAnalyticsService {
     // this.issueSpinalDomainService.findAll().subscribe((dishes) => {
     //   console.log(dishes);
     // });
-    const issue$ = this.jiraTaskService.getWithChangelogById(issueId);
-    issue$.pipe(mergeMap((issue) => this.synchronizer.add(issue))).subscribe();
+    // const issue$ = this.jiraTaskService.getWithChangelogById(issueId);
+    // issue$.pipe(mergeMap((issue) => this.synchronizer.add(issue))).subscribe();
 
     this.logger.log('Hub interaction finished');
   }
