@@ -76,6 +76,6 @@ export abstract class HubRepository<T extends Model> {
 
   private createIfUnknown(error: any): Observable<T> {
     this.logger.error(error);
-    return this.store().pipe(mergeMap(() => this.load()));
+    return this.store().pipe(mergeMap(() => this.load().pipe(take(1))));
   }
 }

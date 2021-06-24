@@ -33,7 +33,12 @@ export class IssueFactory {
             aggregateComponents.add(component?.id);
           } else {
             this.logger.error(
-              'Pas de composant pour ça  id:' + d.id + ' item id ' + d.item_id,
+              'Pas de composant pour ' +
+                d.name +
+                '  id:' +
+                d.id +
+                ' item id ' +
+                d.item_id,
             );
             this.logger.error(JSON.stringify(d));
           }

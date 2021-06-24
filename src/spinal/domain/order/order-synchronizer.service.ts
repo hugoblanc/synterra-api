@@ -77,6 +77,7 @@ export class OrderSynchronizerService implements OnModuleInit {
 
   private loadArray(): Observable<OrderNode[]> {
     return this.orderHubRepository.load().pipe(
+      take(1),
       map((nodes: OrderListNode): OrderNode[] => {
         this.orders = nodes.orders;
 

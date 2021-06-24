@@ -38,6 +38,12 @@ export class SpinalService implements OnModuleInit {
         this.conn,
         name,
         (object: T) => {
+          if (!object) {
+            observer.next();
+            observer.complete();
+            return;
+          }
+
           object.bind(() => {
             observer.next(object);
           });
