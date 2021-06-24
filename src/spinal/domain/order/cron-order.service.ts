@@ -45,16 +45,18 @@ export class CronOrderService {
   ): void {
     const nodes = (nodesList as any).orders.get();
     const ordersToCreate = [];
-    openedOrders.forEach((o) => {
-      const node = nodes.find((n: OrderNode) => n.id === o.id && o.ref != null);
-      if (!node) {
-        this.logger.log(
-          'Node added to opened list id: ' + o.id + ' uuid' + o.uuid,
-        );
-        (nodesList as any).orders.concat([o]);
-        ordersToCreate.push(o);
-      }
-    });
+    openedOrders
+      .filter((o) => o.ref != null)
+      .forEach((o) => {
+        const node = nodes.find((n: OrderNode) => n.id === o.id);
+        if (!node) {
+          this.logger.log(
+            'Node added to opened list id: ' + o.id + ' uuid' + o.uuid,
+          );
+          (nodesList as any).orders.concat([o]);
+          ordersToCreate.push(o);
+        }
+      });
     this.sendOrdersCreatedEvent(ordersToCreate);
   }
 
