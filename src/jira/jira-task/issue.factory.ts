@@ -1,9 +1,13 @@
 import { Logger } from '@nestjs/common';
+import { addDays } from 'date-fns';
 import {
   findJiraComponent,
   selectPriority,
 } from '../../coordination/order-priority/order-priority.util';
-import { getPreparationInformationsByDish } from '../../coordination/order-timing/order-timing.utils';
+import {
+  DishPreparationInformation,
+  getPreparationInformationsByDish,
+} from '../../coordination/order-timing/order-timing.utils';
 import { dishFinder } from '../../zelty/core/dish-finder.utils';
 import { DishDTO } from '../../zelty/models/dish';
 import { DishOrder, OrderDTO } from '../../zelty/models/order.dto';
@@ -12,43 +16,78 @@ import { JiraSubTask } from '../models/jira-sub-task.model';
 import { JiraTask } from '../models/jira-task.model';
 export class IssueFactory {
   logger = new Logger(IssueFactory.name);
-  private task: JiraTask;
-  private subTasks: JiraSubTask[] = [];
+  private _task: JiraTask;
+  private _subTasks: JiraSubTask[] = [];
+  private componentIdList = new Set<string>();
+  public get task(): JiraTask {
+    return this._task;
+  }
+
+  public get subTasks(): JiraSubTask[] {
+    return this._subTasks;
+  }
 
   constructor(
-    public readonly order: OrderDTO,
-    public readonly fullDishes: DishDTO[],
+    private readonly order: OrderDTO,
+    private readonly fullDishes: DishDTO[],
   ) {
-    this.task = new JiraTask(order);
-    const dishes = dishFinder(order);
+    this._task = new JiraTask(order);
+    this._subTasks = this.createSubTasks();
+
+    const {
+      components,
+      maxPreparationStartDate,
+    } = this.extractMissingTaskInformationsFromSubtasks();
+
+    this._task.addMissingInformations(maxPreparationStartDate, components);
+  }
+
+  public addParentId(parentId: string): void {
+    this._subTasks.forEach(
+      (sub: JiraSubTask) => (sub.fields.parent = { id: parentId }),
+    );
+  }
+
+  private createSubTasks(): JiraSubTask[] {
+    const dishes = dishFinder(this.order);
     const groupedDishes = this.groupDishesByTags(dishes);
-    const aggregateComponents = new Set<string>();
+    const subTasks = this.convertGroupedDishesIntoSubTasks(groupedDishes);
+    return subTasks;
+  }
+
+  private extractMissingTaskInformationsFromSubtasks(): {
+    components: { id: string }[];
+    maxPreparationStartDate: string;
+  } {
+    const components = Array.from(this.componentIdList.values()).map((id) => ({
+      id,
+    }));
+
+    let maxPreparationStartDate: string = addDays(new Date(), 2).toISOString();
+    for (const subTask of this._subTasks) {
+      if (subTask.fields.customfield_10031 < maxPreparationStartDate) {
+        maxPreparationStartDate = subTask.fields.customfield_10031;
+      }
+    }
+
+    return { components, maxPreparationStartDate };
+  }
+
+  private convertGroupedDishesIntoSubTasks(
+    groupedDishes: Map<number, DishOrder[]>,
+  ): JiraSubTask[] {
+    const subTasks: JiraSubTask[] = [];
     Array.from(groupedDishes.keys()).forEach((key) => {
       const typedDishes = groupedDishes.get(key);
-      this.subTasks.push(
+      subTasks.push(
         ...typedDishes.map((d, index) => {
-          const priority = this.findPriorityByTags(d);
-          const component = this.findJiraComponentByTags(d);
-          if (component) {
-            aggregateComponents.add(component?.id);
-          } else {
-            this.logger.error(
-              'Pas de composant pour ' +
-                d.name +
-                '  id:' +
-                d.id +
-                ' item id ' +
-                d.item_id,
-            );
-            this.logger.error(JSON.stringify(d));
-          }
-          const preparation = getPreparationInformationsByDish(key);
-          if (!preparation) {
-            this.logger.error('Pas de préparation' + JSON.stringify(key));
-          }
+          const { priority, component, preparation } = this.findSubTaskDetails(
+            d,
+            key,
+          );
           return new JiraSubTask(
             d,
-            order,
+            this.order,
             index,
             priority,
             preparation,
@@ -56,27 +95,42 @@ export class IssueFactory {
           );
         }),
       );
-
-      const components = Array.from(aggregateComponents.values()).map((id) => ({
-        id,
-      }));
-
-      this.task.fields.components = components;
     });
+
+    return subTasks;
   }
 
-  public addParentId(parentId: string): void {
-    this.subTasks.forEach(
-      (sub: JiraSubTask) => (sub.fields.parent = { id: parentId }),
-    );
-  }
+  private findSubTaskDetails(
+    dish: DishOrder,
+    tagId: number,
+  ): {
+    priority: CreatePriority;
+    component: CreatePriority;
+    preparation: DishPreparationInformation;
+  } {
+    const priority = this.findPriorityByTags(dish);
+    const component = this.findJiraComponentByTags(dish);
+    if (component) {
+      this.componentIdList.add(component?.id);
+    } else {
+      this.logger.error(
+        'Pas de composant pour ' +
+          dish.name +
+          '  id:' +
+          dish.id +
+          ' item id ' +
+          dish.item_id,
+      );
+      this.logger.error(JSON.stringify(dish));
+    }
+    const preparation = getPreparationInformationsByDish(tagId);
+    if (!preparation) {
+      this.logger.error(
+        'Pas de préparation pour le tag ' + JSON.stringify(tagId),
+      );
+    }
 
-  public getTask(): JiraTask {
-    return this.task;
-  }
-
-  public getSubTasks(): JiraSubTask[] {
-    return this.subTasks;
+    return { priority, component, preparation };
   }
 
   private groupDishesByTags(dishes: DishOrder[]): Map<number, DishOrder[]> {

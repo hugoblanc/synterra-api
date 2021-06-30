@@ -25,7 +25,9 @@ export class Fields {
   description: string;
   priority: CreatePriority;
   constructor() {
+    // TODO uncomment this
     this.project = { id: '10001' };
+    // this.project = { id: '10007' };
   }
 }
 

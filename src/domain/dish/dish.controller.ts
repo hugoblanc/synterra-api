@@ -1,15 +1,5 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  ParseIntPipe,
-  Patch,
-  Post,
-} from '@nestjs/common';
+import { Controller, Get, Param, ParseIntPipe, Post } from '@nestjs/common';
 import { DishService } from './dish.service';
-import { UpdateDishDto } from './dto/update-dish.dto';
 
 @Controller('dishes')
 export class DishController {
@@ -28,15 +18,5 @@ export class DishController {
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.dishService.findOne(id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateDishDto: UpdateDishDto) {
-    return this.dishService.update(+id, updateDishDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.dishService.remove(+id);
   }
 }

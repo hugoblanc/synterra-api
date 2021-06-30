@@ -37,12 +37,4 @@ export class DishService {
     });
     return Object.assign(dish, recipe);
   }
-
-  update(id: number, updateDishDto: UpdateDishDto) {
-    return `This action updates a #${id} dish`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} dish`;
-  }
 }

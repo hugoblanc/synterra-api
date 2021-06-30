@@ -1,3 +1,4 @@
+import { Logger } from '@nestjs/common';
 import { subMinutes } from 'date-fns';
 
 export enum DishPreparationType {
@@ -95,7 +96,7 @@ const CITY_DURATION = new Map<string, number>([
   ['Méré', 7],
   ['Boissy-sans-avoir', 6],
   ['Auteuil-le-Roi', 8],
-  ['La-Queue-lez-Yvelines', 9],
+  ['La Queue-lez-Yvelines', 9],
   ["Montfort l'Amaury", 10],
   ['Neauphle-le-Vieux', 9],
   ['Saulx-Marchais', 11],
@@ -110,7 +111,7 @@ const CITY_DURATION = new Map<string, number>([
   ['Les Mesnuls', 13],
   ['Marcq', 11],
   ['Thoiry', 11],
-  ['Jouars-Ponchartrain', 14],
+  ['Jouars-Pontchartrain', 14],
   ['Villiers-le-Mahieu', 14],
   ["Saint-Remy-l'Honoré", 18],
   ['Flexanville', 16],
@@ -123,7 +124,13 @@ export function calculateMaxDeliveryTime(
   dueDate: string,
   city: string,
 ): string {
-  const durationEstimation = CITY_DURATION.get(city) ?? 30;
+  const logger = new Logger(calculateMaxDeliveryTime.name);
+  let durationEstimation = 30;
+  if (CITY_DURATION.has(city)) {
+    durationEstimation = CITY_DURATION.get(city);
+  } else {
+    logger.error('CITY NOT FOUND => ' + city);
+  }
   const result = subMinutes(new Date(dueDate), durationEstimation);
   return result.toISOString();
 }

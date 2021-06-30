@@ -1,6 +1,6 @@
 import { calculateMaxDeliveryTime } from '../../coordination/order-timing/order-timing.utils';
-import { AbstractIssue } from './abstract-issue.model';
 import { OrderDTO } from '../../zelty/models/order.dto';
+import { AbstractIssue } from './abstract-issue.model';
 export class JiraTask extends AbstractIssue {
   constructor(order: OrderDTO) {
     super();
@@ -11,7 +11,19 @@ export class JiraTask extends AbstractIssue {
       order.due_date,
       order.delivery_address?.city,
     );
+    this.fields.description = '';
+    if (order.comment) {
+      this.fields.description += 'Commentaire: ' + order.comment + '  \n';
+    }
     this.fields.description = order.delivery_address?.formatted_address;
     this.fields.summary = 'Commande ' + order.ref;
+  }
+
+  public addMissingInformations(
+    maxPreparationStartDate: string,
+    components: { id: string }[],
+  ): void {
+    this.fields.customfield_10031 = maxPreparationStartDate;
+    this.fields.components = components;
   }
 }

@@ -28,13 +28,10 @@ export class TaskService {
         mergeMap((dishes) => {
           const orders = createdEvent.orders;
 
-          const factories = orders.map(
-            (order) => new IssueFactory(order, dishes),
-          );
-
-          const createJiraObjects$ = factories.map((factory) =>
-            this.createJiraObjects(factory),
-          );
+          const createJiraObjects$ = orders.map((order) => {
+            const factory = new IssueFactory(order, dishes);
+            return this.createJiraObjects(factory, order);
+          });
 
           return concat(...createJiraObjects$);
         }),
@@ -42,8 +39,8 @@ export class TaskService {
       .subscribe();
   }
 
-  private createJiraObjects(factory: IssueFactory) {
-    const epic$ = this.getOrCreateEpic(factory.order);
+  private createJiraObjects(factory: IssueFactory, order: OrderDTO) {
+    const epic$ = this.getOrCreateEpic(order);
     const mainTask$ = this.createMainTask(factory);
 
     const createJiraObjects$ = forkJoin([epic$, mainTask$]).pipe(
@@ -112,7 +109,7 @@ export class TaskService {
   }
 
   private createMainTask(factory: IssueFactory) {
-    const mainTask = factory.getTask();
+    const mainTask = factory.task;
     return this.jiraTaskService.postMainTask(mainTask);
   }
 
@@ -124,7 +121,7 @@ export class TaskService {
   }
 
   private createSubTasks(factory: IssueFactory) {
-    const subTasks = factory.getSubTasks();
+    const subTasks = factory.subTasks;
     return this.jiraTaskService.postSubTasks(subTasks);
   }
 }
