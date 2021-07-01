@@ -29,7 +29,9 @@ export class JiraSubTask extends AbstractIssue {
     if (component) {
       this.fields.components = [component];
     }
-    this.fields.description = '';
+
+    this.fields.description =
+      dish.contents.map((c) => `${c.quantity} ${c.name}`).join(' \n') ?? '';
 
     this.fields.customfield_10030 = calculateMaxDeliveryTime(
       parentOrder.due_date,
