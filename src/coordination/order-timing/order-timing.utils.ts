@@ -14,28 +14,28 @@ const TAG_PREPARATION_TYPE = new Map<number, DishPreparationInformation>([
   [
     68231,
     {
-      duration: 30,
+      duration: 5,
       preparationType: DishPreparationType.PARALLELIZABLE,
     },
   ], // Burger
   [
     68232,
     {
-      duration: 30,
+      duration: 4,
       preparationType: DishPreparationType.SEQUENTIALIZABLE,
     },
   ], // Thai
   [
     68233,
     {
-      duration: 20,
+      duration: 4,
       preparationType: DishPreparationType.SEQUENTIALIZABLE,
     },
   ], // Salade
   [
     68234,
     {
-      duration: 20,
+      duration: 4,
       preparationType: DishPreparationType.PARALLELIZABLE,
     },
   ], // Accompagnement
@@ -91,33 +91,33 @@ export function getPreparationInformationsByDish(
 // ]);
 
 const CITY_DURATION = new Map<string, number>([
-  ['Galluis', 7],
-  ['Vicq', 6],
-  ['Méré', 7],
-  ['Boissy-sans-Avoir', 6],
-  ['Auteuil-le-Roi', 8],
-  ['La Queue-lez-Yvelines', 9],
-  ["Montfort-l'Amaury", 10],
-  ['Neauphle-le-Vieux', 9],
-  ['Saulx-Marchais', 11],
-  ['Mareil-le-Guyon', 10],
-  ['Bazoches-sur-Guyonne', 12],
-  ['Grosrouvre', 12],
-  ['Millemont', 10],
-  ['Garancières', 11],
-  ['Autouillet', 10],
-  ['Tremblay-sur-Mauldre', 16],
-  ['Villiers-Saint-Frédéric', 12],
-  ['Les Mesnuls', 13],
-  ['Marcq', 11],
-  ['Thoiry', 11],
-  ['Jouars-Pontchartrain', 14],
-  ['Villiers-le-Mahieu', 14],
-  ["Saint-Remy-l'Honoré", 18],
-  ['Flexanville', 16],
-  ['Béhoust', 14],
-  ['Orgerus', 17],
-  ['Neauphle-le-Château', 14],
+  ['Galluis', 11],
+  ['Vicq', 10],
+  ['Méré', 11],
+  ['Boissy-sans-Avoir', 10],
+  ['Auteuil-le-Roi', 12],
+  ['La Queue-lez-Yvelines', 13],
+  ["Montfort-l'Amaury", 14],
+  ['Neauphle-le-Vieux', 13],
+  ['Saulx-Marchais', 15],
+  ['Mareil-le-Guyon', 14],
+  ['Bazoches-sur-Guyonne', 16],
+  ['Grosrouvre', 16],
+  ['Millemont', 14],
+  ['Garancières', 15],
+  ['Autouillet', 14],
+  ['Tremblay-sur-Mauldre', 20],
+  ['Villiers-Saint-Frédéric', 16],
+  ['Les Mesnuls', 17],
+  ['Marcq', 15],
+  ['Thoiry', 15],
+  ['Jouars-Pontchartrain', 18],
+  ['Villiers-le-Mahieu', 18],
+  ["Saint-Remy-l'Honoré", 22],
+  ['Flexanville', 20],
+  ['Béhoust', 18],
+  ['Orgerus', 21],
+  ['Neauphle-le-Château', 18],
 ]);
 
 export function calculateMaxDeliveryTime(
