@@ -29,6 +29,7 @@ const TAG_COMPOSANT = new Map<number, string>([
   [68232, '10009'],
   [68234, '10007'], // Accompagnement - Friteuse
   [68233, '10008'], // Salade
+  [80177, '10008'], // Aperitivo
   // [68236, '4'],
   // [68237, '4'],
 ]);
@@ -39,6 +40,7 @@ const TAG_COMPOSANT = new Map<number, string>([
 //   [68232, '10011'],
 //   [68234, '10014'], // Accompagnement - Friteuse
 //   [68233, '10012'], // Salade
+//    [80177, '10012'], // Aperitivo
 //   // [68236, '4'],
 //   // [68237, '4'],
 // ]);
