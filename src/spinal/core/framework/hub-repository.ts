@@ -1,8 +1,8 @@
 import { Logger } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { catchError, map, mergeMap, skip, take } from 'rxjs/operators';
-import { SpinalService } from '../hub/spinal.service';
 import { AbstractList } from '../../models/abstract.list';
+import { SpinalService } from '../hub/spinal.service';
 
 export abstract class HubRepository<T extends spinal.Model, K> {
   private logger = new Logger(HubRepository.name);
@@ -28,7 +28,7 @@ export abstract class HubRepository<T extends spinal.Model, K> {
   public findAll(): Observable<K[]> {
     return this.load().pipe(
       map((nodes: AbstractList<T>): K[] =>
-        nodes.length === 0 ? [] : nodes.list.get(),
+        nodes.list.length === 0 ? [] : nodes.list.get(),
       ),
     );
   }

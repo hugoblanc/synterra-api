@@ -1,114 +1,80 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { OnEvent } from '@nestjs/event-emitter';
-import { addDays, format } from 'date-fns';
-import { forkJoin, Observable } from 'rxjs';
-import { catchError, map, mergeMap, tap } from 'rxjs/operators';
-import { OldOrdersListModel } from 'src/spinal/models/old-orders/old-orders-list';
-import { OrderStatusUpdateEvent } from '../../../event/zelty/order-status-update.event';
-import { OrderDTO } from '../../../zelty/models/order.dto';
+import { Injectable, Logger } from '@nestjs/common';
 import { OrderService } from '../../../zelty/services/order.service';
 import { OrderHubRepository } from './order-hub.repository';
-import { OrderNode } from './order-spinal-domain.service';
+import { OldOrdersListModel } from '../../models/old-orders/old-orders-list';
 
 @Injectable()
-export class OrderSynchronizerService implements OnModuleInit {
+export class OrderSynchronizerService {
   private logger = new Logger(OrderSynchronizerService.name);
-  private orders: OrderNode[];
+  private oldOrdersList: OldOrdersListModel;
 
   constructor(
     private readonly orderHubRepository: OrderHubRepository,
     private readonly orderService: OrderService,
   ) {}
 
-  onModuleInit(): void {
-    this.logger.log('Order synchro started');
-    this.synchronize();
-  }
+  // onModuleInit(): void {
+  //   this.logger.log('Order synchro started');
+  //   this.synchronize();
+  // }
 
-  public synchronize(): void {
-    const loadNodes$ = this.loadArray().pipe(
-      catchError((error) => this.createIfUnknown(error)),
-    );
+  // public synchronize(): void {
+  //   const loadNodes$ = this.loadArray().pipe(
+  //     catchError((error) => this.createIfUnknown(error)),
+  //   );
 
-    loadNodes$
-      .pipe(
-        map((nodes) => this.findSynchroLimit(nodes)),
-        mergeMap((max?: string) => this.orderService.getAllOrders(max)),
-        tap((orders: OrderDTO[]) => {
-          this.logger.log(`${orders.length} will be synchronized`);
-          this.orders.concat(orders as OrderNode[]);
-        }),
-      )
-      .subscribe();
-  }
+  //   loadNodes$
+  //     .pipe(
+  //       map((nodes) => this.findSynchroLimit(nodes)),
+  //       mergeMap((max?: string) => this.orderService.getAllOrders(max)),
+  //       tap((orders: OrderDTO[]) => {
+  //         this.logger.log(`${orders.length} will be synchronized`);
+  //         this.oldOrdersList.list.concat(
+  //           orders.map((o) => new OldOrderModel(o)),
+  //         );
+  //       }),
+  //     )
+  //     .subscribe();
+  // }
 
-  @OnEvent(OrderStatusUpdateEvent.EVENT_NAME)
-  handleQuantityCreatedEvent(orderStatusUpdateEvent: OrderStatusUpdateEvent) {
-    const getById$ = this.orderService.getOrderById(
-      orderStatusUpdateEvent.update.id,
-    );
-    const nodeById$ = this.orderHubRepository.find({
-      id: orderStatusUpdateEvent.update.id,
-    });
+  // private createIfUnknown(error: any): Observable<OldOrderModel[]> {
+  //   this.logger.error(error);
+  //   return this.orderHubRepository
+  //     .store()
+  //     .pipe(mergeMap(() => this.loadArray()));
+  // }
 
-    forkJoin([getById$, nodeById$]).subscribe(
-      (value: [OrderDTO, OldOrdersListModel]) => {
-        const order = value[0];
-        const oldOrders = value[1];
+  // private loadArray(): Observable<OldOrderModel[]> {
+  //   return this.orderHubRepository.load().pipe(
+  //     map((nodes: OldOrdersListModel): OldOrderModel[] => {
+  //       this.oldOrdersList = nodes;
 
-        if (oldOrders.length === 0) {
-          this.orders.concat([order] as OrderNode[]);
-          return;
-        }
+  //       if (this.oldOrdersList.length === 0) {
+  //         this.logger.log('No orders list in hub');
+  //         return [];
+  //       }
 
-        for (const node of oldOrders.list.get()) {
-          (node as any).set(order);
-        }
-      },
-    );
-  }
+  //       const arr2d: OldOrderModel[][] = (this.oldOrdersList as any).get();
+  //       const orders: OldOrderModel[] = [].concat(...arr2d);
+  //       return orders;
+  //     }),
+  //   );
+  // }
 
-  private createIfUnknown(error: any): Observable<OrderNode[]> {
-    this.logger.error(error);
-    return this.orderHubRepository
-      .store()
-      .pipe(mergeMap(() => this.loadArray()));
-  }
+  // private findSynchroLimit(nodes: OldOrderModel[]): string | undefined {
+  //   let max = nodes.reduce((a, b) => (a.created_at > b.created_at ? a : b), {
+  //     created_at: '01/01/2020',
+  //   }).created_at;
 
-  private loadArray(): Observable<OrderNode[]> {
-    return this.orderHubRepository.load().pipe(
-      map((nodes: OldOrdersListModel): OrderNode[] => {
-        this.orders = nodes.orders;
+  //   if (!max) {
+  //     return undefined;
+  //   }
 
-        if (this.orders.length === 0) {
-          this.logger.log('No orders list in hub');
-          return [];
-        }
+  //   const maxDate = new Date(max);
+  //   console.log(maxDate);
+  //   max = format(addDays(maxDate, 1), 'yyyy-MM-dd');
+  //   this.logger.log(`${max} is the last date found in hub`);
 
-        const arr2d: OrderNode[][] = (this.orders as any).get();
-        const orders: OrderNode[] = [].concat(...arr2d) as OrderNode[];
-        return orders;
-      }),
-    );
-  }
-
-  private findSynchroLimit(nodes: OrderNode[] = []): string | undefined {
-    let max = nodes.reduce<OrderNode>(
-      (a, b) => (a.created_at > b.created_at ? a : b),
-      {
-        created_at: '01/01/2020',
-      } as OrderNode,
-    ).created_at;
-
-    if (!max) {
-      return undefined;
-    }
-
-    const maxDate = new Date(max);
-    console.log(maxDate);
-    max = format(addDays(maxDate, 1), 'yyyy-MM-dd');
-    this.logger.log(`${max} is the last date found in hub`);
-
-    return max;
-  }
+  //   return max;
+  // }
 }

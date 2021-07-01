@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { OrderDTO } from 'src/zelty/models/order.dto';
+import { OrderDTO } from '../../../zelty/models/order.dto';
 import { HubRepository } from '../../core/framework/hub-repository';
 import { SpinalService } from '../../core/hub/spinal.service';
 import { OpenOrderModel } from '../../models/open-orders/open-order';

@@ -1,11 +1,11 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { Observable } from 'rxjs';
-import { DishModel } from 'src/spinal/models/dishes/dish';
 import { QuantityCreatedEvent } from '../../../event/quantity.event';
 import { DishDTO } from '../../../zelty/models/dish';
 import { DishesListModel } from '../../models/dishes/dishes-list';
 import { DishHubRepository } from './dish-hub.repository';
+import { DishModel } from '../../models/dishes/dish';
 
 @Injectable()
 export class DishSynchronizerService implements OnModuleInit {

@@ -43,7 +43,7 @@ export class CronOrderService {
     openedOrders: OrderDTO[],
     nodesList: OpenOrdersListModel,
   ): void {
-    const nodes = (nodesList as any).orders.get();
+    const nodes = nodesList.list.get();
     const ordersToCreate = [];
     openedOrders
       .filter((o) => o.ref != null)
@@ -79,9 +79,7 @@ export class CronOrderService {
       );
     }
 
-    removableIndexes.forEach((index) =>
-      (nodesList as any).orders.splice(index, 1),
-    );
+    removableIndexes.forEach((index) => nodesList.list.splice(index, 1));
   }
 
   private sendOrdersCreatedEvent(orders: OrderDTO[]): void {
