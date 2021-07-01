@@ -2,10 +2,10 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { spinalCore } from 'spinal-core-connectorjs_type';
+import { AbstractList } from '../../models/abstract.list';
 
 @Injectable()
 export class SpinalService implements OnModuleInit {
-  private spinalCore = require('spinal-core-connectorjs');
   private conn: any;
 
   onModuleInit() {
@@ -18,7 +18,10 @@ export class SpinalService implements OnModuleInit {
     );
   }
 
-  public store(object: any, name: string): Observable<void> {
+  public store<T extends spinal.Model>(
+    object: AbstractList<T>,
+    name: string,
+  ): Observable<void> {
     return new Observable<void>((observer) => {
       spinalCore.store(
         this.conn,
@@ -33,12 +36,14 @@ export class SpinalService implements OnModuleInit {
     });
   }
 
-  public load<T extends spinal.Model>(name: string): Observable<T> {
-    return new Observable<T>((observer) => {
+  public load<T extends spinal.Model>(
+    name: string,
+  ): Observable<AbstractList<T>> {
+    return new Observable<AbstractList<T>>((observer) => {
       spinalCore.load(
         this.conn,
         name,
-        (object: T) => {
+        (object: AbstractList<T>) => {
           if (!object) {
             observer.next();
             observer.complete();

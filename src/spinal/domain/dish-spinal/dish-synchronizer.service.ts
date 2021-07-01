@@ -1,10 +1,11 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { Observable } from 'rxjs';
-import { take } from 'rxjs/operators';
+import { DishModel } from 'src/spinal/models/dishes/dish';
 import { QuantityCreatedEvent } from '../../../event/quantity.event';
 import { DishDTO } from '../../../zelty/models/dish';
-import { DishHubRepository, DishListNode } from './dish-hub.repository';
+import { DishesListModel } from '../../models/dishes/dishes-list';
+import { DishHubRepository } from './dish-hub.repository';
 
 @Injectable()
 export class DishSynchronizerService implements OnModuleInit {
@@ -18,15 +19,12 @@ export class DishSynchronizerService implements OnModuleInit {
 
   @OnEvent(QuantityCreatedEvent.EVENT_NAME)
   handleQuantityCreatedEvent(quantityCreatedEvent: QuantityCreatedEvent) {
-    this.dishHubRepository
-      .load()
-      .pipe(take(1))
-      .subscribe((dishesListNode: DishListNode) => {
-        const dish = dishesListNode.dishes.filter(
-          (d: any) => d?.id.get() === quantityCreatedEvent.quantity.dish.id,
-        )[0];
-        dish.add_attr('quantities', [quantityCreatedEvent.quantity]);
-      });
+    this.dishHubRepository.load().subscribe((dishesListNode) => {
+      const dish = dishesListNode.dishes.filter(
+        (d: any) => d?.id.get() === quantityCreatedEvent.quantity.dish.id,
+      )[0];
+      dish.add_attr('quantities', [quantityCreatedEvent.quantity]);
+    });
   }
 
   store(dishes: DishDTO[]): Observable<void> {
@@ -36,7 +34,5 @@ export class DishSynchronizerService implements OnModuleInit {
 }
 
 function nodeFactory(dishes: DishDTO[] = []): any {
-  return new (require('../../nodes/dishes-list').DishesListModel)({
-    dishes,
-  });
+  return new DishesListModel(dishes.map((d) => new DishModel(d)));
 }

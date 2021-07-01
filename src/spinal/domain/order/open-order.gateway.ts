@@ -15,7 +15,7 @@ export class OpenOrderGateway implements OnModuleInit {
   ) {}
 
   onModuleInit() {
-    this.openOrderHubRepository.detectChanges().subscribe((openOrders) => {
+    this.openOrderHubRepository.watch().subscribe((openOrders) => {
       const orderNode = (openOrders as any).orders;
       const modifiedNodes = orderNode.filter((n) => n.has_been_modified());
       this.logger.log('Changes detected ' + modifiedNodes.length);

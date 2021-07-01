@@ -2,12 +2,12 @@ import { Injectable, Logger } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Cron } from '@nestjs/schedule';
 import { forkJoin } from 'rxjs';
-import { take } from 'rxjs/operators';
 import { OrderCreatedEvent as OrdersCreatedEvent } from '../../../event/zelty/order-created.event';
 import { OrderDTO } from '../../../zelty/models/order.dto';
 import { OrderService } from '../../../zelty/services/order.service';
+import { OpenOrderModel } from '../../models/open-orders/open-order';
+import { OpenOrdersListModel } from '../../models/open-orders/open-orders-list';
 import { OpenOrdersHubRepository } from './open-order-hub.repository';
-import { OrderNode } from './order-spinal-domain.service';
 
 @Injectable()
 export class CronOrderService {
@@ -25,12 +25,12 @@ export class CronOrderService {
   handleCron() {
     this.logger.debug(CronOrderService.CRON_TIME);
 
-    const spinalOrders$ = this.openOrdersHubRepository.load().pipe(take(1));
+    const spinalOrders$ = this.openOrdersHubRepository.load();
 
     const opened$ = this.orderService.getOpenOrders();
 
     forkJoin([opened$, spinalOrders$]).subscribe(
-      (value: [OrderDTO[], OrderNode[]]) => {
+      (value: [OrderDTO[], OpenOrdersListModel]) => {
         const openedOrders = value[0];
         const nodesList = value[1];
         this.addMissingOrderToHub(openedOrders, nodesList);
@@ -41,31 +41,34 @@ export class CronOrderService {
 
   private addMissingOrderToHub(
     openedOrders: OrderDTO[],
-    nodesList: OrderNode[],
+    nodesList: OpenOrdersListModel,
   ): void {
     const nodes = (nodesList as any).orders.get();
     const ordersToCreate = [];
     openedOrders
       .filter((o) => o.ref != null)
       .forEach((o) => {
-        const node = nodes.find((n: OrderNode) => n.id === o.id);
+        const node = nodes.find((n: OpenOrderModel) => n.id.get() === o.id);
         if (!node) {
           this.logger.log(
             'Node added to opened list id: ' + o.id + ' uuid' + o.uuid,
           );
-          (nodesList as any).orders.concat([o]);
+          nodesList.list.concat([new OpenOrderModel(o)]);
           ordersToCreate.push(o);
         }
       });
     this.sendOrdersCreatedEvent(ordersToCreate);
   }
 
-  private cleanHub(openedOrders: OrderDTO[], nodesList: OrderNode[]): void {
-    const nodes = (nodesList as any).orders.get();
+  private cleanHub(
+    openedOrders: OrderDTO[],
+    nodesList: OpenOrdersListModel,
+  ): void {
+    const nodes = nodesList.list.get();
     const removableIndexes: number[] = [];
 
-    nodes.forEach((n: OrderNode, i: number) => {
-      if (!openedOrders.some((o) => o.id === n.id)) {
+    nodes.forEach((n: OpenOrderModel, i: number) => {
+      if (!openedOrders.some((o) => n.id.get() === o.id)) {
         removableIndexes.push(i);
       }
     });

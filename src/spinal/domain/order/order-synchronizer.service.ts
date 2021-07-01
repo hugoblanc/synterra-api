@@ -2,12 +2,13 @@ import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { addDays, format } from 'date-fns';
 import { forkJoin, Observable } from 'rxjs';
-import { catchError, map, mergeMap, take, tap } from 'rxjs/operators';
+import { catchError, map, mergeMap, tap } from 'rxjs/operators';
+import { OldOrdersListModel } from 'src/spinal/models/old-orders/old-orders-list';
 import { OrderStatusUpdateEvent } from '../../../event/zelty/order-status-update.event';
 import { OrderDTO } from '../../../zelty/models/order.dto';
 import { OrderService } from '../../../zelty/services/order.service';
 import { OrderHubRepository } from './order-hub.repository';
-import { OrderListNode, OrderNode } from './order-spinal-domain.service';
+import { OrderNode } from './order-spinal-domain.service';
 
 @Injectable()
 export class OrderSynchronizerService implements OnModuleInit {
@@ -31,7 +32,6 @@ export class OrderSynchronizerService implements OnModuleInit {
 
     loadNodes$
       .pipe(
-        take(1),
         map((nodes) => this.findSynchroLimit(nodes)),
         mergeMap((max?: string) => this.orderService.getAllOrders(max)),
         tap((orders: OrderDTO[]) => {
@@ -47,21 +47,21 @@ export class OrderSynchronizerService implements OnModuleInit {
     const getById$ = this.orderService.getOrderById(
       orderStatusUpdateEvent.update.id,
     );
-    const nodeById$ = this.orderHubRepository.find<OrderNode>({
+    const nodeById$ = this.orderHubRepository.find({
       id: orderStatusUpdateEvent.update.id,
     });
 
     forkJoin([getById$, nodeById$]).subscribe(
-      (value: [OrderDTO, OrderNode[]]) => {
-        const nodes = value[1];
+      (value: [OrderDTO, OldOrdersListModel]) => {
         const order = value[0];
+        const oldOrders = value[1];
 
-        if (nodes.length === 0) {
+        if (oldOrders.length === 0) {
           this.orders.concat([order] as OrderNode[]);
           return;
         }
 
-        for (const node of nodes) {
+        for (const node of oldOrders.list.get()) {
           (node as any).set(order);
         }
       },
@@ -77,8 +77,7 @@ export class OrderSynchronizerService implements OnModuleInit {
 
   private loadArray(): Observable<OrderNode[]> {
     return this.orderHubRepository.load().pipe(
-      take(1),
-      map((nodes: OrderListNode): OrderNode[] => {
+      map((nodes: OldOrdersListModel): OrderNode[] => {
         this.orders = nodes.orders;
 
         if (this.orders.length === 0) {

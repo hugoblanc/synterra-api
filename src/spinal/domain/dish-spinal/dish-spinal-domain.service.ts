@@ -1,5 +1,4 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { DishDTO } from '../../../zelty/models/dish';
 import { DishHubRepository } from './dish-hub.repository';
 
 // TODO remove dupplication with order-spin-domain
@@ -10,6 +9,6 @@ export class DishSpinalDomainService {
 
   findAll() {
     this.logger.log('Find all dishes');
-    return this.hubRepository.findAll<DishDTO>();
+    return this.hubRepository.findAll();
   }
 }

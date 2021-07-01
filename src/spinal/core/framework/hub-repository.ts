@@ -2,50 +2,42 @@ import { Logger } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { catchError, map, mergeMap, skip, take } from 'rxjs/operators';
 import { SpinalService } from '../hub/spinal.service';
+import { AbstractList } from '../../models/abstract.list';
 
-export abstract class HubRepository<T extends spinal.Model> {
+export abstract class HubRepository<T extends spinal.Model, K> {
   private logger = new Logger(HubRepository.name);
 
   protected abstract readonly NODE_NAME: string;
-  protected abstract readonly ROOT_NAME: string;
-  protected abstract get emptyNode(): spinal.Model;
+  protected abstract get emptyNode(): AbstractList<T>;
 
   constructor(protected readonly spinal: SpinalService) {}
 
-  load(): Observable<T> {
-    return this.spinal
-      .load<T>(this.NODE_NAME)
-      .pipe(catchError((error) => this.createIfUnknown(error)));
+  public load(): Observable<AbstractList<T>> {
+    return this.loadOrCreate().pipe(take(1));
   }
 
-  detectChanges(): Observable<T> {
-    return this.load().pipe(skip(1));
+  public watch(): Observable<AbstractList<T>> {
+    return this.loadOrCreate().pipe(skip(1));
   }
 
-  store(node = this.emptyNode) {
+  public store(node = this.emptyNode) {
     console.log(this.spinal);
     return this.spinal.store(node, this.NODE_NAME);
   }
 
-  findAll<K>() {
+  public findAll(): Observable<K[]> {
     return this.load().pipe(
-      take(1),
-      map((nodes: T): K[] => {
-        if (nodes[this.ROOT_NAME].length === 0) {
-          return [];
-        }
-
-        return (nodes[this.ROOT_NAME] as any).get();
-      }),
+      map((nodes: AbstractList<T>): K[] =>
+        nodes.length === 0 ? [] : nodes.list.get(),
+      ),
     );
   }
 
-  find<K>(where: Partial<K> | Partial<K>[]): Observable<K[]> {
+  public find(where: Partial<T> | Partial<T>[]): Observable<AbstractList<T>> {
     return this.load().pipe(
-      take(1),
-      map((nodeList: T) => {
-        const nodes: K[] = nodeList[this.ROOT_NAME].filter((d: any) => {
-          const validatePartial = (partial: Partial<K>) => {
+      map((nodes: AbstractList<T>) => {
+        nodes = (nodes.filter((d: any) => {
+          const validatePartial = (partial: Partial<T>) => {
             for (const key in partial) {
               if (Object.prototype.hasOwnProperty.call(partial, key)) {
                 const nodeValue = (d[key] as any)?.get();
@@ -67,15 +59,25 @@ export abstract class HubRepository<T extends spinal.Model> {
           } else {
             return validatePartial(where);
           }
-        });
+        }) as unknown) as AbstractList<T>;
 
         return nodes;
       }),
     );
   }
 
-  private createIfUnknown(error: any): Observable<T> {
+  private loadOrCreate(): Observable<AbstractList<T>> {
+    return this.spinalLoad().pipe(
+      catchError((error) => this.createAndLoad(error)),
+    );
+  }
+
+  private spinalLoad() {
+    return this.spinal.load<T>(this.NODE_NAME);
+  }
+
+  private createAndLoad(error: any): Observable<AbstractList<T>> {
     this.logger.error(error);
-    return this.store().pipe(mergeMap(() => this.load().pipe(take(1))));
+    return this.store().pipe(mergeMap(() => this.spinalLoad()));
   }
 }
