@@ -96,6 +96,7 @@ const CITY_DURATION = new Map<string, number>([
   ['Méré', 11],
   ['Boissy-sans-Avoir', 10],
   ['Auteuil-le-Roi', 12],
+  ['Gambais', 16],
   ['La Queue-lez-Yvelines', 13],
   ["Montfort-l'Amaury", 14],
   ['Neauphle-le-Vieux', 13],
