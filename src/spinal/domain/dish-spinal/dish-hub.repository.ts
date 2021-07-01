@@ -3,15 +3,15 @@ import { DishDTO } from '../../../zelty/models/dish';
 import { HubRepository } from '../../core/framework/hub-service';
 import { SpinalService } from '../../core/hub/spinal.service';
 
-export type DishNode = DishDTO & Model;
-export type DishListNode = DishNode[] & Model & { dishes: any[] };
+export type DishNode = DishDTO & spinal.Model;
+export type DishListNode = DishNode[] & spinal.Model & { dishes: any[] };
 
 @Injectable()
 export class DishHubRepository extends HubRepository<DishListNode> {
   protected readonly ROOT_NAME = 'dishes';
   readonly NODE_NAME = 'dishes-list';
 
-  protected get emptyNode(): Model {
+  protected get emptyNode(): spinal.Model {
     return new (require('../../nodes/dishes-list').DishesListModel)({
       dishes: [],
     });

@@ -1,4 +1,4 @@
-require('spinal-core-connectorjs');
+import { Model } from 'spinal-core-connectorjs_type';
 
 export class OpenOrdersModel extends Model {
   private static emptyNode = { orders: [] };

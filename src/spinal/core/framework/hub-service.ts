@@ -3,12 +3,12 @@ import { Observable } from 'rxjs';
 import { catchError, map, mergeMap, skip, take } from 'rxjs/operators';
 import { SpinalService } from '../hub/spinal.service';
 
-export abstract class HubRepository<T extends Model> {
+export abstract class HubRepository<T extends spinal.Model> {
   private logger = new Logger(HubRepository.name);
 
   protected abstract readonly NODE_NAME: string;
   protected abstract readonly ROOT_NAME: string;
-  protected abstract get emptyNode(): Model;
+  protected abstract get emptyNode(): spinal.Model;
 
   constructor(protected readonly spinal: SpinalService) {}
 

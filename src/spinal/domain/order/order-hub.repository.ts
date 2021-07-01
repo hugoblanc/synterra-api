@@ -6,7 +6,7 @@ import { OrderListNode } from './order-spinal-domain.service';
 
 @Injectable()
 export class OrderHubRepository extends HubRepository<OrderListNode> {
-  protected get emptyNode(): Model {
+  protected get emptyNode(): spinal.Model {
     const emptyNode = {};
     emptyNode[this.ROOT_NAME] = [];
     return new (require('../../nodes/orders-list').OrdersListModel)(emptyNode);

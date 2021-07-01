@@ -5,7 +5,7 @@ import { IssueListModel } from '../../nodes/issue-list';
 
 @Injectable()
 export class IssueHubRepository extends HubRepository<IssueListModel> {
-  protected get emptyNode(): Model {
+  protected get emptyNode(): spinal.Model {
     return new IssueListModel();
   }
 
