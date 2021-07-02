@@ -53,8 +53,6 @@ export class SpinalService implements OnModuleInit {
           object.bind(() => {
             observer.next(object);
           });
-          // TODO: trouver un moyen de complete
-          // observer.complete();
         },
         () => observer.error('Fail loading model ' + name),
       );

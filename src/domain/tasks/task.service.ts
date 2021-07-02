@@ -44,6 +44,7 @@ export class TaskService {
     const mainTask$ = this.createMainTask(factory);
 
     const createJiraObjects$ = forkJoin([epic$, mainTask$]).pipe(
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       tap(([epic, issueCreatedDto]) => {
         factory.addParentId(issueCreatedDto.id);
         this.logger.log('Parent id correctly added' + issueCreatedDto.id);
