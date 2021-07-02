@@ -43,12 +43,12 @@ export class CronOrderService {
     openedOrders: OrderDTO[],
     nodesList: OpenOrdersListModel,
   ): void {
-    const nodes = nodesList.list.get();
+    const nodes: OrderDTO[] = nodesList.list.get();
     const ordersToCreate = [];
     openedOrders
       .filter((o) => o.ref != null)
       .forEach((o) => {
-        const node = nodes.find((n: OpenOrderModel) => n.id.get() === o.id);
+        const node = nodes.find((n: OrderDTO) => n.id === o.id);
         if (!node) {
           this.logger.log(
             'Node added to opened list id: ' + o.id + ' uuid' + o.uuid,
@@ -64,11 +64,11 @@ export class CronOrderService {
     openedOrders: OrderDTO[],
     nodesList: OpenOrdersListModel,
   ): void {
-    const nodes = nodesList.list.get();
+    const nodes: OrderDTO[] = nodesList.list.get();
     const removableIndexes: number[] = [];
 
-    nodes.forEach((n: OpenOrderModel, i: number) => {
-      if (!openedOrders.some((o) => n.id.get() === o.id)) {
+    nodes.forEach((n: OrderDTO, i: number) => {
+      if (!openedOrders.some((o) => n.id === o.id)) {
         removableIndexes.push(i);
       }
     });

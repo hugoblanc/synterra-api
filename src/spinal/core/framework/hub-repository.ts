@@ -1,5 +1,5 @@
 import { Logger } from '@nestjs/common';
-import { Observable } from 'rxjs';
+import { EMPTY, Observable } from 'rxjs';
 import { catchError, map, mergeMap, skip, take } from 'rxjs/operators';
 import { AbstractList } from '../../models/abstract.list';
 import { SpinalService } from '../hub/spinal.service';
@@ -30,6 +30,10 @@ export abstract class HubRepository<T extends spinal.Model, K> {
       map((nodes: AbstractList<T>): K[] =>
         nodes.list.length === 0 ? [] : nodes.list.get(),
       ),
+      catchError((error) => {
+        this.logger.error('Error finding all nodes for' + this.NODE_NAME);
+        return EMPTY;
+      }),
     );
   }
 

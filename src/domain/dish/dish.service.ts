@@ -1,13 +1,12 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { DishZeltyService } from '../../zelty/services/dish-zelty.service';
-import { UpdateDishDto } from './dto/update-dish.dto';
-import { DishEntity } from './entities/dish.entity';
 import { DishSynchronizerService } from '../../spinal/domain/dish-spinal/dish-synchronizer.service';
+import { DishZeltyService } from '../../zelty/services/dish-zelty.service';
+import { DishEntity } from './entities/dish.entity';
 
 @Injectable()
-export class DishService {
+export class DishService implements OnModuleInit {
   private logger = new Logger(DishService.name);
 
   constructor(
@@ -16,6 +15,12 @@ export class DishService {
     private readonly dishZeltyService: DishZeltyService,
     private readonly dishSynchronizer: DishSynchronizerService,
   ) {}
+
+  async onModuleInit() {
+    setTimeout(async () => {
+      await this.synchronize();
+    }, 1000);
+  }
 
   async synchronize(): Promise<void> {
     const dishesDTO = await this.dishZeltyService.getAll().toPromise();
