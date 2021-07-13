@@ -30,7 +30,7 @@ export class TaskService {
       dishes,
     );
 
-    planning.fillPlanningWithCreatedOrders();
+    planning.fillPlanning();
 
     console.group();
     console.log(planning.toString());

@@ -24,6 +24,7 @@ interface DishOverride {
   priority: CreatePriority | undefined;
   component: CreateComponent;
   preparation: DishPreparationInformation | undefined;
+  startPreparation: Date;
 }
 
 export interface DishOrderEnhance extends DishOrder, DishOverride {}

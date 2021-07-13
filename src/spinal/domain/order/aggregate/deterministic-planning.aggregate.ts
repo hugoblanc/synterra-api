@@ -30,14 +30,19 @@ export class DeterministicPlanningAggregate {
     this.eOrdersToCreate = enhancedOrderToCreate.ordersEnhanced;
   }
 
-  public fillPlanningWithCreatedOrders() {
-    const groupedOrderCreated = this.groupByDueDate(this.eOrdersCreated);
+  public fillPlanning() {
+    this.fillPlanningOrders(this.eOrdersCreated);
+    this.fillPlanningOrders(this.eOrdersToCreate);
+  }
 
-    let dueDates = Object.keys(groupedOrderCreated);
+  private fillPlanningOrders(orders: OrderEnhanced[]) {
+    const groupedOrders = this.groupByDueDate(orders);
+
+    let dueDates = Object.keys(groupedOrders);
     dueDates = dueDates.sort();
 
     for (const date of dueDates) {
-      const sameDateOrders: OrderEnhanced[] = groupedOrderCreated[date];
+      const sameDateOrders: OrderEnhanced[] = groupedOrders[date];
       this.sortOrderByRef(sameDateOrders);
       for (const order of sameDateOrders) {
         const dishes = dishFinder(order) as DishOrderEnhance[];
@@ -76,7 +81,7 @@ class Planning {
     this.lines.push(new ProductionLine(8, 'frites', 4));
     this.lines.push(new ProductionLine(1, 'thai', 4));
     this.lines.push(new ProductionLine(1, 'salade', 4));
-    this.lines.push(new ProductionLine(20, 'other', 0));
+    this.lines.push(new ProductionLine(30, 'other', 0));
   }
 
   addDishes(label: string, dishes: DishOrderEnhance[], dueDate: string) {
@@ -107,10 +112,23 @@ class ProductionLine {
     public timeToPrepare: number,
   ) {}
 
+  get isParallel(): boolean {
+    return this.capacity > 1;
+  }
+
   findAvailableStartHour(dueDate: string | Date, ids: number[]): Date {
+    if (this.isParallel) {
+      return this.findAvailableParrallel(dueDate, ids);
+    } else {
+      throw new Error('Implement find sequilize');
+    }
+  }
+
+  private findAvailableParrallel(dueDate: string | Date, ids: number[]) {
     let startHour = new Date(dueDate) as Date;
     let availableCapacity: number;
 
+    // TODO deal with PARRALL7LE or SEQUENTIALIZABLE
     do {
       const overlappingSlots = this.slots.filter((s) => s.isOnDate(startHour));
       availableCapacity = this.countAvailableCapacity(overlappingSlots);

@@ -73,17 +73,13 @@ export class IssueFactory {
   }
 
   private convertGroupedDishesIntoSubTasks(
-    groupedDishes: Map<number, DishOrder[]>,
+    groupedDishes: Map<number, Dish[]>,
   ): JiraSubTask[] {
     const subTasks: JiraSubTask[] = [];
     Array.from(groupedDishes.keys()).forEach((key) => {
       const typedDishes = groupedDishes.get(key);
       subTasks.push(
         ...typedDishes.map((d, index) => {
-          const { priority, component, preparation } = this.findSubTaskDetails(
-            d,
-            key,
-          );
           return new JiraSubTask(
             d,
             this.order,
@@ -97,41 +93,6 @@ export class IssueFactory {
     });
 
     return subTasks;
-  }
-
-  private findSubTaskDetails(
-    dish: DishOrder,
-    tagId: number,
-  ): {
-    priority: CreatePriority;
-    component: CreatePriority;
-    preparation: DishPreparationInformation;
-  } {
-    const priority = this.findPriorityByTags(dish);
-    const component = this.findJiraComponentByTags(dish);
-    if (component) {
-      this.componentIdList.add(component?.id);
-    } else {
-      this.logger.error(
-        'Pas de composant pour ' +
-          dish.name +
-          '  id:' +
-          dish.id +
-          ' item id ' +
-          dish.item_id,
-      );
-      this.logger.error(JSON.stringify(dish));
-    }
-    // TODO fix ça
-    // const preparation = findPreparationTime(tagId);
-    const preparation = null;
-    if (!preparation) {
-      this.logger.error(
-        'Pas de préparation pour le tag ' + JSON.stringify(tagId),
-      );
-    }
-
-    return { priority, component, preparation };
   }
 
   private groupDishesByTags(dishes: DishOrder[]): Map<number, DishOrder[]> {
