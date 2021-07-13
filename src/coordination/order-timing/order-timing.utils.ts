@@ -1,5 +1,6 @@
 import { Logger } from '@nestjs/common';
 import { subMinutes } from 'date-fns';
+import { DishDTO } from '../../zelty/models/dish';
 
 export enum DishPreparationType {
   PARALLELIZABLE,
@@ -8,6 +9,7 @@ export enum DishPreparationType {
 export interface DishPreparationInformation {
   duration: number;
   preparationType: DishPreparationType;
+  label: string;
 }
 
 const TAG_PREPARATION_TYPE = new Map<number, DishPreparationInformation>([
@@ -16,6 +18,7 @@ const TAG_PREPARATION_TYPE = new Map<number, DishPreparationInformation>([
     {
       duration: 5,
       preparationType: DishPreparationType.PARALLELIZABLE,
+      label: 'burger',
     },
   ], // Burger
   [
@@ -23,6 +26,7 @@ const TAG_PREPARATION_TYPE = new Map<number, DishPreparationInformation>([
     {
       duration: 4,
       preparationType: DishPreparationType.SEQUENTIALIZABLE,
+      label: 'thai',
     },
   ], // Thai
   [
@@ -30,6 +34,7 @@ const TAG_PREPARATION_TYPE = new Map<number, DishPreparationInformation>([
     {
       duration: 4,
       preparationType: DishPreparationType.SEQUENTIALIZABLE,
+      label: 'salade',
     },
   ], // Salade
   [
@@ -37,6 +42,7 @@ const TAG_PREPARATION_TYPE = new Map<number, DishPreparationInformation>([
     {
       duration: 4,
       preparationType: DishPreparationType.PARALLELIZABLE,
+      label: 'other',
     },
   ], // Accompagnement
   [
@@ -44,6 +50,7 @@ const TAG_PREPARATION_TYPE = new Map<number, DishPreparationInformation>([
     {
       duration: 1,
       preparationType: DishPreparationType.PARALLELIZABLE,
+      label: 'other',
     },
   ], // Boissons
   [
@@ -51,14 +58,18 @@ const TAG_PREPARATION_TYPE = new Map<number, DishPreparationInformation>([
     {
       duration: 1,
       preparationType: DishPreparationType.PARALLELIZABLE,
+      label: 'other',
     },
   ], // Dessert
 ]);
 
-export function getPreparationInformationsByDish(
-  tagId: number,
+export function findPreparationTime(
+  dish: DishDTO,
 ): DishPreparationInformation | undefined {
-  return TAG_PREPARATION_TYPE.get(tagId);
+  const preparation = dish?.tags
+    .filter((t) => TAG_PREPARATION_TYPE.has(t))
+    .map((t) => TAG_PREPARATION_TYPE.get(t));
+  return preparation[0] ?? undefined;
 }
 
 const CITY_DURATION = new Map<string, number>([

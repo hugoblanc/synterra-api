@@ -1,14 +1,15 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
-import { concat, forkJoin, merge, Observable } from 'rxjs';
+import { forkJoin, merge, Observable } from 'rxjs';
 import { filter, map, mergeMap, tap } from 'rxjs/operators';
-import { OrderCreatedEvent } from '../../event/zelty/order-created.event';
+import { OrdersCreatedEvent } from '../../event/zelty/order-created.event';
 import { IssueFactory } from '../../jira/jira-task/issue.factory';
 import { createSummaryFromDate } from '../../jira/jira-task/jira-summary.utils';
 import { JiraTaskService } from '../../jira/jira-task/jira-task.service';
 import { JiraEpic } from '../../jira/models/jira-epic.model';
 import { IssueCreatedDto } from '../../jira/models/jira-issue-created.dto';
 import { DishSpinalDomainService } from '../../spinal/domain/dish-spinal/dish-spinal-domain.service';
+import { DeterministicPlanningAggregate } from '../../spinal/domain/order/aggregate/deterministic-planning.aggregate';
 import { OrderDTO } from '../../zelty/models/order.dto';
 
 @Injectable()
@@ -20,23 +21,27 @@ export class TaskService {
     private readonly dishSpinalService: DishSpinalDomainService,
   ) {}
 
-  @OnEvent(OrderCreatedEvent.EVENT_NAME)
-  async createTask(createdEvent: OrderCreatedEvent) {
-    this.dishSpinalService
-      .findAll()
-      .pipe(
-        mergeMap((dishes) => {
-          const orders = createdEvent.orders;
+  @OnEvent(OrdersCreatedEvent.EVENT_NAME)
+  async createTask(createdEvent: OrdersCreatedEvent) {
+    const dishes = await this.dishSpinalService.findAll().toPromise();
+    const planning = new DeterministicPlanningAggregate(
+      createdEvent.ordersToCreate,
+      createdEvent.ordersCreated,
+      dishes,
+    );
 
-          const createJiraObjects$ = orders.map((order) => {
-            const factory = new IssueFactory(order, dishes);
-            return this.createJiraObjects(factory, order);
-          });
+    planning.fillPlanningWithCreatedOrders();
 
-          return concat(...createJiraObjects$);
-        }),
-      )
-      .subscribe();
+    console.group();
+    console.log(planning.toString());
+    console.groupEnd();
+
+    // const createJiraObjects$ = orders.map((order) => {
+    //   const factory = new IssueFactory(order, dishes);
+    //   return this.createJiraObjects(factory, order);
+    // });
+
+    // return await concat(...createJiraObjects$).toPromise();
   }
 
   private createJiraObjects(factory: IssueFactory, order: OrderDTO) {

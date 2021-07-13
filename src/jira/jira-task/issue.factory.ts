@@ -4,21 +4,20 @@ import {
   findJiraComponent,
   selectPriority,
 } from '../../coordination/order-priority/order-priority.util';
-import {
-  DishPreparationInformation,
-  getPreparationInformationsByDish,
-} from '../../coordination/order-timing/order-timing.utils';
+import { DishPreparationInformation } from '../../coordination/order-timing/order-timing.utils';
 import { dishFinder } from '../../zelty/core/dish-finder.utils';
 import { DishDTO } from '../../zelty/models/dish';
 import { DishOrder, OrderDTO } from '../../zelty/models/order.dto';
 import { CreatePriority } from '../models/jira-issue-created.dto';
 import { JiraSubTask } from '../models/jira-sub-task.model';
 import { JiraTask } from '../models/jira-task.model';
+
 export class IssueFactory {
-  logger = new Logger(IssueFactory.name);
+  private logger = new Logger(IssueFactory.name);
   private _task: JiraTask;
   private _subTasks: JiraSubTask[] = [];
   private componentIdList = new Set<string>();
+
   public get task(): JiraTask {
     return this._task;
   }
@@ -123,7 +122,9 @@ export class IssueFactory {
       );
       this.logger.error(JSON.stringify(dish));
     }
-    const preparation = getPreparationInformationsByDish(tagId);
+    // TODO fix ça
+    // const preparation = findPreparationTime(tagId);
+    const preparation = null;
     if (!preparation) {
       this.logger.error(
         'Pas de préparation pour le tag ' + JSON.stringify(tagId),

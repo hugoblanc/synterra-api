@@ -1,7 +1,6 @@
 export interface OrderReponse {
   orders: OrderDTO[];
 }
-
 export interface OrderDTO {
   id: number;
   uuid: string;

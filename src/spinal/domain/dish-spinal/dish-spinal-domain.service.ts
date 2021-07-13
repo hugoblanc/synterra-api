@@ -7,6 +7,8 @@ export class DishSpinalDomainService {
   private logger = new Logger(DishSpinalDomainService.name);
   constructor(private readonly hubRepository: DishHubRepository) {}
 
+  private watchDish;
+
   findAll() {
     this.logger.log('Find all dishes');
     return this.hubRepository.findAll();

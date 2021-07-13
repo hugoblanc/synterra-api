@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule as NestConfigModule } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -20,6 +21,7 @@ import { config } from './ormconfig';
         pass: process.env.PIM_EMAIL, // generated ethereal password
       },
     }),
+    NestConfigModule.forRoot({}),
   ],
   controllers: [],
   providers: [ConfigService],

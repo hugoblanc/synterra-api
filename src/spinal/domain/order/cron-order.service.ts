@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Cron } from '@nestjs/schedule';
 import { forkJoin } from 'rxjs';
-import { OrderCreatedEvent as OrdersCreatedEvent } from '../../../event/zelty/order-created.event';
+import { OrdersCreatedEvent } from '../../../event/zelty/order-created.event';
 import { OrderDTO } from '../../../zelty/models/order.dto';
 import { OrderService } from '../../../zelty/services/order.service';
 import { OpenOrderModel } from '../../models/open-orders/open-order';
@@ -45,6 +45,7 @@ export class CronOrderService {
   ): void {
     const nodes: OrderDTO[] = nodesList.list.get();
     const ordersToCreate = [];
+    const ordersCreated = [];
     openedOrders
       .filter((o) => o.ref != null)
       .forEach((o) => {
@@ -55,9 +56,11 @@ export class CronOrderService {
           );
           nodesList.list.concat([new OpenOrderModel(o)]);
           ordersToCreate.push(o);
+        } else {
+          ordersCreated.push(o);
         }
       });
-    this.sendOrdersCreatedEvent(ordersToCreate);
+    this.sendOrdersCreatedEvent(ordersToCreate, ordersCreated);
   }
 
   private cleanHub(
@@ -82,8 +85,11 @@ export class CronOrderService {
     removableIndexes.forEach((index) => nodesList.list.splice(index, 1));
   }
 
-  private sendOrdersCreatedEvent(orders: OrderDTO[]): void {
-    const event = new OrdersCreatedEvent(orders);
+  private sendOrdersCreatedEvent(
+    orders: OrderDTO[],
+    ordersCreated: OrderDTO[],
+  ): void {
+    const event = new OrdersCreatedEvent(orders, ordersCreated);
     this.eventEmitter.emit(OrdersCreatedEvent.EVENT_NAME, event);
   }
 }
