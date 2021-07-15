@@ -103,10 +103,7 @@ const CITY_DURATION = new Map<string, number>([
   ['Neauphle-le-Château', 18],
 ]);
 
-export function calculateMaxDeliveryTime(
-  dueDate: string,
-  city: string,
-): string {
+export function calculateMaxDeliveryTime(dueDate: string, city: string): Date {
   const logger = new Logger(calculateMaxDeliveryTime.name);
   let durationEstimation = 30;
   if (CITY_DURATION.has(city)) {
@@ -115,5 +112,5 @@ export function calculateMaxDeliveryTime(
     logger.error('CITY NOT FOUND => ' + city);
   }
   const result = subMinutes(new Date(dueDate), durationEstimation);
-  return result.toISOString();
+  return result;
 }

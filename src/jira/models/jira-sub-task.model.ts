@@ -1,22 +1,13 @@
-import { subMinutes } from 'date-fns';
+import { Logger } from '@nestjs/common';
 import {
-  calculateMaxDeliveryTime,
-  DishPreparationInformation,
-  DishPreparationType,
-} from '../../coordination/order-timing/order-timing.utils';
-import { DishOrder, OrderDTO } from '../../zelty/models/order.dto';
+  DishOrderEnhance,
+  OrderEnhanced,
+} from '../../domain/tasks/models/task-order';
+import { Slot } from '../../spinal/domain/order/aggregate/deterministic-planning.aggregate';
 import { AbstractIssue } from './abstract-issue.model';
-import { CreateComponent, CreatePriority } from './jira-issue-created.dto';
 
 export class JiraSubTask extends AbstractIssue {
-  constructor(
-    dish: DishOrder,
-    parentOrder: OrderDTO,
-    index: number,
-    priority?: CreatePriority,
-    preparation?: DishPreparationInformation,
-    component?: CreateComponent,
-  ) {
+  constructor(dish: DishOrderEnhance, parentOrder: OrderEnhanced, slot: Slot) {
     super();
     this.fields.issuetype = { id: '10002' };
     this.fields.labels = [
@@ -25,41 +16,28 @@ export class JiraSubTask extends AbstractIssue {
     ];
     this.fields.summary = dish.name;
     this.fields.customfield_10029 = parentOrder.due_date;
-    this.fields.priority = priority;
-    if (component) {
-      this.fields.components = [component];
+    this.fields.priority = dish.priority;
+    if (dish.component) {
+      this.fields.components = [dish.component];
     }
 
     this.fields.description =
       dish.contents.map((c) => `${c.quantity} ${c.name}`).join(' \n') ?? '';
 
-    this.fields.customfield_10030 = calculateMaxDeliveryTime(
-      parentOrder.due_date,
-      parentOrder.delivery_address?.city,
-    );
+    this.fields.customfield_10030 = parentOrder.maxDeliveryDate.toISOString();
 
-    this.setupTimeOffset(index, preparation);
+    this.setupTimeOffset(slot);
   }
 
-  private setupTimeOffset(index = 0, preparation?: DishPreparationInformation) {
-    if (!preparation) {
+  private setupTimeOffset(slot: Slot) {
+    if (!slot) {
+      const logger = new Logger(JiraSubTask.name);
+      logger.warn('No slot for ' + this.fields.summary);
       return;
     }
-    const deliveryDate = new Date(this.fields.customfield_10030);
-    let durationEstimation: number;
 
-    if (preparation.preparationType === DishPreparationType.PARALLELIZABLE) {
-      durationEstimation = preparation.duration;
-    } else {
-      durationEstimation = preparation.duration * (index + 1);
-    }
+    const maxPreparationStartDate = slot.startDate?.toISOString();
 
-    const maxPreparationStartDate = subMinutes(
-      deliveryDate,
-      durationEstimation,
-    );
-
-    this.fields.customfield_10031 = maxPreparationStartDate?.toISOString();
-    // this.fields.timeestimate = durationEstimation * 60;
+    this.fields.customfield_10031 = maxPreparationStartDate;
   }
 }

@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
-import { forkJoin, merge, Observable } from 'rxjs';
+import { forkJoin, merge, Observable, concat } from 'rxjs';
 import { filter, map, mergeMap, tap } from 'rxjs/operators';
 import { OrdersCreatedEvent } from '../../event/zelty/order-created.event';
 import { IssueFactory } from '../../jira/jira-task/issue.factory';
@@ -35,13 +35,13 @@ export class TaskService {
     console.group();
     console.log(planning.toString());
     console.groupEnd();
+    const orderToCreate = planning.eOrdersToCreate;
+    const createJiraObjects$ = orderToCreate.map((order) => {
+      const factory = new IssueFactory(order, planning);
+      return this.createJiraObjects(factory, order);
+    });
 
-    // const createJiraObjects$ = orders.map((order) => {
-    //   const factory = new IssueFactory(order, dishes);
-    //   return this.createJiraObjects(factory, order);
-    // });
-
-    // return await concat(...createJiraObjects$).toPromise();
+    return await concat(...createJiraObjects$).toPromise();
   }
 
   private createJiraObjects(factory: IssueFactory, order: OrderDTO) {

@@ -3,7 +3,10 @@ import {
   findJiraComponent,
   selectPriority,
 } from '../../../coordination/order-priority/order-priority.util';
-import { findPreparationTime } from '../../../coordination/order-timing/order-timing.utils';
+import {
+  findPreparationTime,
+  calculateMaxDeliveryTime,
+} from '../../../coordination/order-timing/order-timing.utils';
 import { dishFinder } from '../../../zelty/core/dish-finder.utils';
 import { DishDTO } from '../../../zelty/models/dish';
 import { DishOrder, OrderDTO } from '../../../zelty/models/order.dto';
@@ -26,6 +29,10 @@ export class EnhancedOrders {
 
   private enhanceDishes(order: OrderDTO) {
     const dishOrders = dishFinder(order);
+    (order as OrderEnhanced).maxDeliveryDate = calculateMaxDeliveryTime(
+      order.due_date,
+      order.delivery_address?.city,
+    );
     for (const dish of dishOrders) {
       const fullDish = this.findFullDish(dish);
 

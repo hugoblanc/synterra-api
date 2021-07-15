@@ -1,14 +1,11 @@
 import { Logger } from '@nestjs/common';
 import { addDays } from 'date-fns';
 import {
-  findJiraComponent,
-  selectPriority,
-} from '../../coordination/order-priority/order-priority.util';
-import { DishPreparationInformation } from '../../coordination/order-timing/order-timing.utils';
+  DishOrderEnhance,
+  OrderEnhanced,
+} from '../../domain/tasks/models/task-order';
+import { DeterministicPlanningAggregate } from '../../spinal/domain/order/aggregate/deterministic-planning.aggregate';
 import { dishFinder } from '../../zelty/core/dish-finder.utils';
-import { DishDTO } from '../../zelty/models/dish';
-import { DishOrder, OrderDTO } from '../../zelty/models/order.dto';
-import { CreatePriority } from '../models/jira-issue-created.dto';
 import { JiraSubTask } from '../models/jira-sub-task.model';
 import { JiraTask } from '../models/jira-task.model';
 
@@ -27,8 +24,8 @@ export class IssueFactory {
   }
 
   constructor(
-    private readonly order: OrderDTO,
-    private readonly fullDishes: DishDTO[],
+    private readonly order: OrderEnhanced,
+    private readonly planning: DeterministicPlanningAggregate,
   ) {
     this._task = new JiraTask(order);
     this._subTasks = this.createSubTasks();
@@ -48,9 +45,15 @@ export class IssueFactory {
   }
 
   private createSubTasks(): JiraSubTask[] {
-    const dishes = dishFinder(this.order);
-    const groupedDishes = this.groupDishesByTags(dishes);
-    const subTasks = this.convertGroupedDishesIntoSubTasks(groupedDishes);
+    const dishes = dishFinder(this.order) as DishOrderEnhance[];
+    const subTasks = [];
+    for (const dish of dishes) {
+      const slot = this.planning.findSlotByDishId(dish.id);
+      const subTask = new JiraSubTask(dish, this.order, slot);
+
+      subTasks.push(subTask);
+    }
+
     return subTasks;
   }
 
@@ -68,73 +71,6 @@ export class IssueFactory {
         maxPreparationStartDate = subTask.fields.customfield_10031;
       }
     }
-
     return { components, maxPreparationStartDate };
-  }
-
-  private convertGroupedDishesIntoSubTasks(
-    groupedDishes: Map<number, Dish[]>,
-  ): JiraSubTask[] {
-    const subTasks: JiraSubTask[] = [];
-    Array.from(groupedDishes.keys()).forEach((key) => {
-      const typedDishes = groupedDishes.get(key);
-      subTasks.push(
-        ...typedDishes.map((d, index) => {
-          return new JiraSubTask(
-            d,
-            this.order,
-            index,
-            priority,
-            preparation,
-            component,
-          );
-        }),
-      );
-    });
-
-    return subTasks;
-  }
-
-  private groupDishesByTags(dishes: DishOrder[]): Map<number, DishOrder[]> {
-    const result = new Map<number, DishOrder[]>();
-
-    for (const dish of dishes) {
-      const id = this.findFullDish(dish)?.tags[0] ?? -1;
-      const matchingArray = result.get(id) ?? [];
-      matchingArray.push(dish);
-      result.set(id, matchingArray);
-    }
-    return result;
-  }
-
-  private findFullDish(dish: DishOrder): DishDTO {
-    const fullDish = this.fullDishes.find(
-      (d) => d.id === (dish.item_id ?? dish.id),
-    );
-    if (!fullDish) {
-      this.logger.warn('Full dish not found');
-      this.logger.warn(JSON.stringify(fullDish));
-    }
-    return fullDish;
-  }
-
-  private findPriorityByTags(dishOrder: DishOrder): CreatePriority | undefined {
-    const dish = this.findFullDish(dishOrder);
-    if (!dish) {
-      return;
-    }
-
-    return selectPriority(dish);
-  }
-
-  private findJiraComponentByTags(
-    dishOrder: DishOrder,
-  ): CreatePriority | undefined {
-    const dish = this.findFullDish(dishOrder);
-    if (!dish) {
-      return;
-    }
-
-    return findJiraComponent(dish);
   }
 }

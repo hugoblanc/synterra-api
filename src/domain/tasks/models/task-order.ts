@@ -17,6 +17,7 @@ interface ZeltyMenuOverride extends ZeltyMenu {
 type ZeltyMenuEnhanced = ModifyDeep<ZeltyMenu, ZeltyMenuOverride>;
 
 export interface OrderEnhanced extends OrderDTO {
+  maxDeliveryDate: Date;
   contents: (ZeltyMenuEnhanced | DishOrderEnhance)[];
 }
 

@@ -35,6 +35,10 @@ export class DeterministicPlanningAggregate {
     this.fillPlanningOrders(this.eOrdersToCreate);
   }
 
+  public findSlotByDishId(dishId: number) {
+    return this.planning.findSlotByDishId(dishId);
+  }
+
   private fillPlanningOrders(orders: OrderEnhanced[]) {
     const groupedOrders = this.groupByDueDate(orders);
 
@@ -49,7 +53,11 @@ export class DeterministicPlanningAggregate {
         const groupedDishes = this.groupByLabel(dishes);
         const labels = Object.keys(groupedDishes);
         for (const label of labels) {
-          this.planning.addDishes(label, groupedDishes[label], order.due_date);
+          this.planning.addDishes(
+            label,
+            groupedDishes[label],
+            order.maxDeliveryDate,
+          );
         }
       }
     }
@@ -84,15 +92,23 @@ class Planning {
     this.lines.push(new ProductionLine(30, 'other', 0));
   }
 
-  addDishes(label: string, dishes: DishOrderEnhance[], dueDate: string) {
+  addDishes(label: string, dishes: DishOrderEnhance[], deliveryDate: Date) {
     const line = this.findLineByLabel(label);
     if (!line) {
       this.logger.error(`Label: ${label} Dishes ${dishes.map((d) => d.name)} `);
       return;
     }
     const ids = dishes.map((d) => d.id);
-    const startDate = line.findAvailableStartHour(dueDate, ids);
-    line.addSlot(startDate, ids);
+    line.attributeSlots(deliveryDate, ids);
+  }
+
+  findSlotByDishId(dishId: number): Slot | undefined {
+    for (const line of this.lines) {
+      const slot = line.findSlotByDishId(dishId);
+      if (slot) {
+        return slot;
+      }
+    }
   }
 
   private findLineByLabel(label: string) {
@@ -112,36 +128,74 @@ class ProductionLine {
     public timeToPrepare: number,
   ) {}
 
-  get isParallel(): boolean {
-    return this.capacity > 1;
-  }
-
-  findAvailableStartHour(dueDate: string | Date, ids: number[]): Date {
-    if (this.isParallel) {
-      return this.findAvailableParrallel(dueDate, ids);
-    } else {
-      throw new Error('Implement find sequilize');
+  attributeSlots(startDate: Date, ids: number[]): void {
+    while (ids.length > 0) {
+      const findingResult = this.findAvailableStartHour(startDate, ids);
+      this.createSlot(findingResult.startDate, findingResult.ids);
+      ids = findingResult.leftToFindIds;
     }
   }
 
-  private findAvailableParrallel(dueDate: string | Date, ids: number[]) {
-    let startHour = new Date(dueDate) as Date;
-    let availableCapacity: number;
-
-    // TODO deal with PARRALL7LE or SEQUENTIALIZABLE
-    do {
-      const overlappingSlots = this.slots.filter((s) => s.isOnDate(startHour));
-      availableCapacity = this.countAvailableCapacity(overlappingSlots);
-      startHour = subMinutes(startHour, this.timeToPrepare);
-    } while (availableCapacity < ids.length);
-
-    return startHour;
+  findAvailableStartHour(dueDate: Date, ids: number[]): FindingSlotResult {
+    if (ids.length > this.capacity) {
+      return this.findAvailableSequential(dueDate, ids);
+    }
+    return this.findAvailableParallel(dueDate, ids);
   }
 
-  addSlot(startDate: Date, ids: number[]) {
+  findSlotByDishId(dishId: number): Slot | undefined {
+    return this.slots.find((s) => s.includes(dishId));
+  }
+
+  private createSlot(startDate: Date, ids: number[]) {
     const endDate = addMinutes(startDate, this.timeToPrepare);
     const newSlot = new Slot(ids, startDate, endDate);
     this.slots.push(newSlot);
+  }
+
+  private findAvailableParallel(
+    startDate: Date,
+    ids: number[],
+  ): FindingSlotResult {
+    let availableCapacity: number;
+    let endDate = startDate;
+    startDate = subMinutes(startDate, this.timeToPrepare);
+    do {
+      const overlappingSlots = this.slots.filter((s) =>
+        s.isOnDate(startDate, endDate),
+      );
+      availableCapacity = this.countAvailableCapacity(overlappingSlots);
+
+      if (availableCapacity >= ids.length) break;
+      endDate = subMinutes(endDate, 1);
+      startDate = subMinutes(startDate, 1);
+    } while (availableCapacity < ids.length);
+
+    return { ids, startDate, leftToFindIds: [] };
+  }
+
+  private findAvailableSequential(
+    startDate: Date,
+    ids: number[],
+  ): FindingSlotResult {
+    let availableCapacity: number;
+    let endDate = startDate;
+    startDate = subMinutes(startDate, this.timeToPrepare);
+    do {
+      const overlappingSlots = this.slots.filter((s) =>
+        s.isOnDate(startDate, endDate),
+      );
+      availableCapacity = this.countAvailableCapacity(overlappingSlots);
+      startDate = subMinutes(startDate, this.timeToPrepare);
+
+      if (availableCapacity > 0) break;
+      endDate = subMinutes(endDate, 1);
+      startDate = subMinutes(startDate, 1);
+    } while (availableCapacity === 0);
+
+    const dishSelectedIds = ids.slice(0, availableCapacity);
+    const leftToFindIds = ids.slice(availableCapacity);
+    return { ids: dishSelectedIds, startDate, leftToFindIds };
   }
 
   private countAvailableCapacity(slots: Slot[]): number {
@@ -154,10 +208,10 @@ class ProductionLine {
   }
 }
 
-class Slot {
+export class Slot {
   constructor(
     private ids: number[],
-    private startDate: Date,
+    public startDate: Date,
     private endDate: Date,
   ) {}
 
@@ -165,16 +219,20 @@ class Slot {
     return this.ids.length;
   }
 
-  get startTime(): number {
-    return this.startDate.getTime();
+  includes(id: number): boolean {
+    return this.ids.includes(id);
   }
 
-  get endTime(): number {
-    return this.endDate.getTime();
+  isOnDate(startDate: Date, endDate: Date) {
+    return (
+      (startDate >= this.startDate && startDate <= endDate) ||
+      (endDate > this.startDate && endDate <= this.endDate)
+    );
   }
+}
 
-  isOnDate(dueDate: Date) {
-    const time = dueDate.getTime();
-    return this.startTime <= time && this.endTime > time;
-  }
+interface FindingSlotResult {
+  ids: number[];
+  startDate: Date;
+  leftToFindIds: number[];
 }
