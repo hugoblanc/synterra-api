@@ -1,7 +1,7 @@
 import { Logger } from '@nestjs/common';
+import { AbstractList } from '@synterra/spinal-rxjs';
 import { EMPTY, Observable } from 'rxjs';
 import { catchError, map, mergeMap, skip, take } from 'rxjs/operators';
-import { AbstractList } from '../../models/abstract.list';
 import { SpinalService } from '../hub/spinal.service';
 
 export abstract class HubRepository<T extends spinal.Model, K> {

@@ -5,9 +5,6 @@ import { SpinalService } from '../../core/hub/spinal.service';
 import { DishModel } from '../../models/dishes/dish';
 import { DishesListModel } from '../../models/dishes/dishes-list';
 
-export type DishNode = DishDTO & spinal.Model;
-export type DishListNode = DishNode[] & spinal.Model & { dishes: any[] };
-
 @Injectable()
 export class DishHubRepository extends HubRepository<DishModel, DishDTO> {
   readonly NODE_NAME = 'dishes-list';
@@ -18,6 +15,5 @@ export class DishHubRepository extends HubRepository<DishModel, DishDTO> {
 
   constructor(spinal: SpinalService) {
     super(spinal);
-    console.log(spinal);
   }
 }

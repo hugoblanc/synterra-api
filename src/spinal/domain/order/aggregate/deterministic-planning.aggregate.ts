@@ -186,7 +186,6 @@ class ProductionLine {
         s.isOnDate(startDate, endDate),
       );
       availableCapacity = this.countAvailableCapacity(overlappingSlots);
-      startDate = subMinutes(startDate, this.timeToPrepare);
 
       if (availableCapacity > 0) break;
       endDate = subMinutes(endDate, 1);
@@ -225,8 +224,8 @@ export class Slot {
 
   isOnDate(startDate: Date, endDate: Date) {
     return (
-      (startDate >= this.startDate && startDate <= endDate) ||
-      (endDate > this.startDate && endDate <= this.endDate)
+      (startDate <= this.startDate && endDate > this.startDate) ||
+      (startDate < this.endDate && endDate >= this.endDate)
     );
   }
 }

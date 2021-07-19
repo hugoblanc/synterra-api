@@ -96,7 +96,7 @@ const CITY_DURATION = new Map<string, number>([
   ['Thoiry', 15],
   ['Jouars-Pontchartrain', 18],
   ['Villiers-le-Mahieu', 18],
-  ["Saint-Remy-l'Honoré", 22],
+  ["Saint-Rémy-l'Honoré", 22],
   ['Flexanville', 20],
   ['Béhoust', 18],
   ['Orgerus', 21],

@@ -60,6 +60,10 @@ export class CronOrderService {
           ordersCreated.push(o);
         }
       });
+
+    this.logger.log(
+      `ordersToCreate: ${ordersToCreate.length} ordersCreated: ${ordersCreated.length} `,
+    );
     this.sendOrdersCreatedEvent(ordersToCreate, ordersCreated);
   }
 

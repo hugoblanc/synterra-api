@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 import { Injectable, OnModuleInit } from '@nestjs/common';
+import { AbstractList } from '@synterra/spinal-rxjs';
 import { Observable } from 'rxjs';
 import { spinalCore } from 'spinal-core-connectorjs_type';
-import { AbstractList } from '../../models/abstract.list';
 
 @Injectable()
 export class SpinalService implements OnModuleInit {
