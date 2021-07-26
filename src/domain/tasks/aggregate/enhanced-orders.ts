@@ -4,8 +4,8 @@ import {
   selectPriority,
 } from '../../../coordination/order-priority/order-priority.util';
 import {
-  findPreparationTime,
   calculateMaxDeliveryTime,
+  findPreparationTime,
 } from '../../../coordination/order-timing/order-timing.utils';
 import { dishFinder } from '../../../zelty/core/dish-finder.utils';
 import { DishDTO } from '../../../zelty/models/dish';
@@ -23,8 +23,6 @@ export class EnhancedOrders {
     }
 
     this.ordersEnhanced = orders as OrderEnhanced[];
-
-    this.sortOrderByDate();
   }
 
   private enhanceDishes(order: OrderDTO) {
@@ -40,6 +38,18 @@ export class EnhancedOrders {
       const component = findJiraComponent(fullDish);
       const preparation = findPreparationTime(fullDish);
 
+      if (preparation == null) {
+        this.logger.error(`Missing preparation for dish ${fullDish.name}`);
+      }
+
+      if (component == null) {
+        this.logger.error(`Missing component for dish ${fullDish.name}`);
+      }
+
+      if (priority == null) {
+        this.logger.error(`Missing priority for dish ${fullDish.name}`);
+      }
+
       Object.assign(dish, { preparation, component, priority });
     }
   }
@@ -53,13 +63,5 @@ export class EnhancedOrders {
       this.logger.warn(JSON.stringify(fullDish));
     }
     return fullDish;
-  }
-
-  private sortOrderByDate(): void {
-    this.ordersEnhanced.sort((a, b) => {
-      if (a.due_date < b.due_date) return -1;
-      if (a.due_date > b.due_date) return 1;
-      return 0;
-    });
   }
 }

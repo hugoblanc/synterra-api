@@ -21,7 +21,6 @@ export abstract class HubRepository<T extends spinal.Model, K> {
   }
 
   public store(node = this.emptyNode) {
-    console.log(this.spinal);
     return this.spinal.store(node, this.NODE_NAME);
   }
 

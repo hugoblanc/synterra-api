@@ -22,6 +22,14 @@ const TAG_PREPARATION_TYPE = new Map<number, DishPreparationInformation>([
     },
   ], // Burger
   [
+    70806,
+    {
+      duration: 5,
+      preparationType: DishPreparationType.PARALLELIZABLE,
+      label: 'burger',
+    },
+  ], // Cheese Burger enfant
+  [
     68232,
     {
       duration: 4,
@@ -61,15 +69,21 @@ const TAG_PREPARATION_TYPE = new Map<number, DishPreparationInformation>([
       label: 'other',
     },
   ], // Dessert
+  [
+    -1,
+    {
+      duration: 1,
+      preparationType: DishPreparationType.PARALLELIZABLE,
+      label: 'other',
+    },
+  ], // not found
 ]);
 
-export function findPreparationTime(
-  dish: DishDTO,
-): DishPreparationInformation | undefined {
+export function findPreparationTime(dish: DishDTO): DishPreparationInformation {
   const preparation = dish?.tags
     .filter((t) => TAG_PREPARATION_TYPE.has(t))
     .map((t) => TAG_PREPARATION_TYPE.get(t));
-  return preparation[0] ?? undefined;
+  return preparation[0] ?? TAG_PREPARATION_TYPE.get(-1);
 }
 
 const CITY_DURATION = new Map<string, number>([
@@ -78,6 +92,7 @@ const CITY_DURATION = new Map<string, number>([
   ['Méré', 11],
   ['Boissy-sans-Avoir', 10],
   ['Auteuil-le-Roi', 12],
+  ['Auteuil', 12],
   ['Gambais', 16],
   ['La Queue-lez-Yvelines', 13],
   ["Montfort-l'Amaury", 14],

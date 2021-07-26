@@ -5,7 +5,7 @@ import { catchError, map, mergeMap, retryWhen } from 'rxjs/operators';
 import { genericRetryStrategy } from '../../core/rxjs/generic-retry-strategy';
 import { ZeltyHttpService } from '../core/zelty-http.service';
 import { ZeltyPage } from '../core/zelty-page';
-import { OrderDTO, OrderReponse as OrderResponse } from '../models/order.dto';
+import { OrderDTO, OrderResponse } from '../models/order.dto';
 
 @Injectable()
 export class OrderService {
@@ -24,6 +24,10 @@ export class OrderService {
       })
       .pipe(map((response) => response.orders));
   }
+
+  // getOpenOrders(): Observable<OrderDTO[]> {
+  //   return of(orderMocke as OrderResponse).pipe(map((order) => order.orders));
+  // }
 
   getAllOrders(max?: string): Observable<OrderDTO[]> {
     const getPage = (page?: number) =>

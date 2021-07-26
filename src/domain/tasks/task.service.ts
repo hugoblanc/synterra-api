@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
-import { forkJoin, merge, Observable, concat } from 'rxjs';
+import { concat, forkJoin, merge, Observable } from 'rxjs';
 import { filter, map, mergeMap, tap } from 'rxjs/operators';
 import { OrdersCreatedEvent } from '../../event/zelty/order-created.event';
 import { IssueFactory } from '../../jira/jira-task/issue.factory';

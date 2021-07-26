@@ -42,12 +42,10 @@ export class DeterministicPlanningAggregate {
   private fillPlanningOrders(orders: OrderEnhanced[]) {
     const groupedOrders = this.groupByDueDate(orders);
 
-    let dueDates = Object.keys(groupedOrders);
-    dueDates = dueDates.sort();
+    const dueDates = Object.keys(groupedOrders);
 
     for (const date of dueDates) {
       const sameDateOrders: OrderEnhanced[] = groupedOrders[date];
-      this.sortOrderByRef(sameDateOrders);
       for (const order of sameDateOrders) {
         const dishes = dishFinder(order) as DishOrderEnhance[];
         const groupedDishes = this.groupByLabel(dishes);
@@ -69,10 +67,6 @@ export class DeterministicPlanningAggregate {
 
   private groupByDueDate(orders: OrderEnhanced[]) {
     return ArrayHelper.groupBy(orders, 'due_date');
-  }
-
-  private sortOrderByRef(orders: OrderEnhanced[]) {
-    orders.sort((a, b) => a.ref - b.ref);
   }
 
   toString() {
@@ -190,7 +184,7 @@ class ProductionLine {
       if (availableCapacity > 0) break;
       endDate = subMinutes(endDate, 1);
       startDate = subMinutes(startDate, 1);
-    } while (availableCapacity === 0);
+    } while (availableCapacity <= 0);
 
     const dishSelectedIds = ids.slice(0, availableCapacity);
     const leftToFindIds = ids.slice(availableCapacity);
@@ -224,8 +218,8 @@ export class Slot {
 
   isOnDate(startDate: Date, endDate: Date) {
     return (
-      (startDate <= this.startDate && endDate > this.startDate) ||
-      (startDate < this.endDate && endDate >= this.endDate)
+      Math.max(startDate.getTime(), this.startDate.getTime()) <
+      Math.min(endDate.getTime(), this.endDate.getTime())
     );
   }
 }

@@ -5,11 +5,8 @@ export class ArrayHelper {
     for (const val of array) {
       total += val;
     }
-    console.log(total);
     const avg = total / array.length;
-    console.log(avg);
     const trunkedAvg = Math.trunc(avg);
-    console.log(trunkedAvg);
     return trunkedAvg;
   }
 

@@ -1,4 +1,4 @@
-export interface OrderReponse {
+export interface OrderResponse {
   orders: OrderDTO[];
 }
 export interface OrderDTO {
