@@ -32,9 +32,6 @@ export class TaskService {
 
     planning.fillPlanning();
 
-    console.group();
-    console.log(planning.toString());
-    console.groupEnd();
     const orderToCreate = planning.eOrdersToCreate;
     const createJiraObjects$ = orderToCreate.map((order) => {
       const factory = new IssueFactory(order, planning);

@@ -104,7 +104,7 @@ const CITY_DURATION = new Map<string, number>([
   ['Millemont', 14],
   ['Garancières', 15],
   ['Autouillet', 14],
-  ['Tremblay-sur-Mauldre', 20],
+  ['Le Tremblay-sur-Mauldre', 20],
   ['Villiers-Saint-Frédéric', 16],
   ['Les Mesnuls', 17],
   ['Marcq', 15],

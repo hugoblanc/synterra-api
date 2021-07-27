@@ -23,8 +23,6 @@ export class CronOrderService {
 
   @Cron(CronOrderService.CRON_TIME)
   handleCron() {
-    this.logger.debug(CronOrderService.CRON_TIME);
-
     const spinalOrders$ = this.openOrdersHubRepository.load();
 
     const opened$ = this.orderService.getOpenOrders();
