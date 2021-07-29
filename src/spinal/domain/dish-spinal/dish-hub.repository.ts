@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
+import { HubRepository } from '@synterra/spinal-rxjs';
 import { DishDTO } from '../../../zelty/models/dish';
-import { HubRepository } from '../../core/framework/hub-repository';
+// import { HubRepository } from '../../core/framework/hub-repository';
 import { SpinalService } from '../../core/hub/spinal.service';
 import { DishModel } from '../../models/dishes/dish';
 import { DishesListModel } from '../../models/dishes/dishes-list';

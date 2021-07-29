@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
+import { HubRepository } from '@synterra/spinal-rxjs';
 import { OrderDTO } from '../../../zelty/models/order.dto';
-import { HubRepository } from '../../core/framework/hub-repository';
 import { SpinalService } from '../../core/hub/spinal.service';
 import { OpenOrderModel } from '../../models/open-orders/open-order';
 import { OpenOrdersListModel } from '../../models/open-orders/open-orders-list';

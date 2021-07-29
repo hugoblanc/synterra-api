@@ -29,10 +29,7 @@ export class CronOrderService {
 
     forkJoin([opened$, spinalOrders$]).subscribe(
       (value: [OrderDTO[], OpenOrdersListModel]) => {
-        const openedOrders = value[0].sort(
-          (a, b) =>
-            new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
-        );
+        const openedOrders = this.sortOrderByCreationDate(value[0]);
         const nodesList = value[1];
         this.addMissingOrderToHub(openedOrders, nodesList);
         this.cleanHub(openedOrders, nodesList);
@@ -96,5 +93,12 @@ export class CronOrderService {
   ): void {
     const event = new OrdersCreatedEvent(orders, ordersCreated);
     this.eventEmitter.emit(OrdersCreatedEvent.EVENT_NAME, event);
+  }
+
+  private sortOrderByCreationDate(orders: OrderDTO[]) {
+    return orders.sort(
+      (a, b) =>
+        new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
+    );
   }
 }
