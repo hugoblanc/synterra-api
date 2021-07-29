@@ -1,7 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { OnEvent } from '@nestjs/event-emitter';
+import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { concat, firstValueFrom, forkJoin, merge, Observable } from 'rxjs';
 import { filter, map, mergeMap, tap } from 'rxjs/operators';
+import { MainTaskCreatedEvent } from '../../event/jira/main-task-created.event';
+import { SubTasksCreatedEvent } from '../../event/jira/sub-tasks-created.event';
 import { OrdersCreatedEvent } from '../../event/zelty/order-created.event';
 import { IssueFactory } from '../../jira/jira-task/issue.factory';
 import { createSummaryFromDate } from '../../jira/jira-task/jira-summary.utils';
@@ -19,6 +21,7 @@ export class TaskService {
   constructor(
     private readonly jiraTaskService: JiraTaskService,
     private readonly dishSpinalService: DishSpinalDomainService,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   @OnEvent(OrdersCreatedEvent.EVENT_NAME)
@@ -113,7 +116,16 @@ export class TaskService {
 
   private createMainTask(factory: IssueFactory) {
     const mainTask = factory.task;
-    return this.jiraTaskService.postMainTask(mainTask);
+    return this.jiraTaskService
+      .postMainTask(mainTask)
+      .pipe(
+        tap((issueCreated) =>
+          this.eventEmitter.emit(
+            MainTaskCreatedEvent.EVENT_NAME,
+            new MainTaskCreatedEvent(issueCreated.id, factory),
+          ),
+        ),
+      );
   }
 
   private moveMainTaskIntoEpic(epic, issueCreated: IssueCreatedDto) {
@@ -125,6 +137,15 @@ export class TaskService {
 
   private createSubTasks(factory: IssueFactory) {
     const subTasks = factory.subTasks;
-    return this.jiraTaskService.postSubTasks(subTasks);
+    return this.jiraTaskService
+      .postSubTasks(subTasks)
+      .pipe(
+        tap((subTasks) =>
+          this.eventEmitter.emit(
+            SubTasksCreatedEvent.EVENT_NAME,
+            new SubTasksCreatedEvent(subTasks, factory),
+          ),
+        ),
+      );
   }
 }

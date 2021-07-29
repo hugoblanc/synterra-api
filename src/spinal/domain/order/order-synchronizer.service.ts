@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { OrderService } from '../../../zelty/services/order.service';
-import { OrderHubRepository } from './order-hub.repository';
 import { OldOrdersListModel } from '../../models/old-orders/old-orders-list';
+import { OrderHubRepository } from './order-hub.repository';
 
 @Injectable()
 export class OrderSynchronizerService {

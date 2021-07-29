@@ -6,6 +6,19 @@ export abstract class AbstractIssue {
   constructor() {
     this.fields = new Fields();
   }
+
+  extactTimingInformation(): TimingInformation {
+    const maxPreparationTime = this.fields.customfield_10031;
+    const maxDeliveryDate = this.fields.customfield_10030;
+    const dueDate = this.fields.customfield_10029;
+    return { maxPreparationTime, maxDeliveryDate, dueDate };
+  }
+}
+
+export interface TimingInformation {
+  maxPreparationTime: string;
+  maxDeliveryDate: string;
+  dueDate: string;
 }
 
 export class Fields {

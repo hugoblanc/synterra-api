@@ -24,16 +24,14 @@ export class IssueFactory {
   }
 
   constructor(
-    private readonly order: OrderEnhanced,
+    public readonly order: OrderEnhanced,
     private readonly planning: DeterministicPlanningAggregate,
   ) {
     this._task = new JiraTask(order);
     this._subTasks = this.createSubTasks();
 
-    const {
-      components,
-      maxPreparationStartDate,
-    } = this.extractMissingTaskInformationsFromSubtasks();
+    const { components, maxPreparationStartDate } =
+      this.extractMissingTaskInformationsFromSubtasks();
 
     this._task.addMissingInformations(maxPreparationStartDate, components);
   }

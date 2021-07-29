@@ -7,8 +7,14 @@ import { Slot } from '../../spinal/domain/order/aggregate/deterministic-planning
 import { AbstractIssue } from './abstract-issue.model';
 
 export class JiraSubTask extends AbstractIssue {
+  private _dishId: number;
+  get dishId(): number {
+    return this._dishId;
+  }
+
   constructor(dish: DishOrderEnhance, parentOrder: OrderEnhanced, slot: Slot) {
     super();
+    this._dishId = dish.id;
     this.fields.issuetype = { id: '10002' };
     this.fields.labels = [
       'Plat',
