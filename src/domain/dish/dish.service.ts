@@ -1,5 +1,6 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { firstValueFrom } from 'rxjs';
 import { Repository } from 'typeorm';
 import { DishSynchronizerService } from '../../spinal/domain/dish-spinal/dish-synchronizer.service';
 import { DishZeltyService } from '../../zelty/services/dish-zelty.service';
@@ -23,12 +24,12 @@ export class DishService implements OnModuleInit {
   }
 
   async synchronize(): Promise<void> {
-    const dishesDTO = await this.dishZeltyService.getAll().toPromise();
+    const dishesDTO = await firstValueFrom(this.dishZeltyService.getAll());
     const dishesEntity = dishesDTO.map((d) => new DishEntity(d.id, d.name));
     this.logger.log(`${dishesEntity.length} dishes entities will be saved`);
     await this.repository.save(dishesEntity);
     this.logger.log(`${dishesEntity.length} dishes nodes will be saved`);
-    await this.dishSynchronizer.store(dishesDTO).toPromise();
+    await firstValueFrom(this.dishSynchronizer.store(dishesDTO));
   }
 
   async findAll() {
@@ -36,7 +37,7 @@ export class DishService implements OnModuleInit {
   }
 
   async findOne(id: number) {
-    const dish = await this.dishZeltyService.getById(id).toPromise();
+    const dish = await firstValueFrom(this.dishZeltyService.getById(id));
     const recipe = await this.repository.findOne(id, {
       relations: ['quantities', 'quantities.ingredient'],
     });

@@ -1,4 +1,5 @@
-import { Module, HttpModule } from '@nestjs/common';
+import { HttpModule } from '@nestjs/axios';
+import { Module } from '@nestjs/common';
 import { JiraHttpService } from './jira-http.service';
 
 @Module({

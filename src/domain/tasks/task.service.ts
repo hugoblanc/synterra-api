@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
-import { concat, forkJoin, merge, Observable } from 'rxjs';
+import { concat, firstValueFrom, forkJoin, merge, Observable } from 'rxjs';
 import { filter, map, mergeMap, tap } from 'rxjs/operators';
 import { OrdersCreatedEvent } from '../../event/zelty/order-created.event';
 import { IssueFactory } from '../../jira/jira-task/issue.factory';
@@ -23,7 +23,7 @@ export class TaskService {
 
   @OnEvent(OrdersCreatedEvent.EVENT_NAME)
   async createTask(createdEvent: OrdersCreatedEvent) {
-    const dishes = await this.dishSpinalService.findAll().toPromise();
+    const dishes = await firstValueFrom(this.dishSpinalService.findAll());
     const planning = new DeterministicPlanningAggregate(
       createdEvent.ordersToCreate,
       createdEvent.ordersCreated,
@@ -38,7 +38,7 @@ export class TaskService {
       return this.createJiraObjects(factory, order);
     });
 
-    return await concat(...createJiraObjects$).toPromise();
+    return await firstValueFrom(concat(...createJiraObjects$));
   }
 
   private createJiraObjects(factory: IssueFactory, order: OrderDTO) {
