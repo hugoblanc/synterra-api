@@ -51,6 +51,7 @@
     "rxjs": "^7.2.0",
     "spinal-core-connectorjs": "git+https://github.com/spinalcom/spinal-core-connectorjs.git",
     "spinal-core-connectorjs_type": "git+https://github.com/spinalcom/spinal-core-connectorjs_type.git",
+    "type-fest": "^1.2.3",
     "typeorm": "^0.2.35"
   },
   "devDependencies": {

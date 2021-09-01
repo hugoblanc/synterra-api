@@ -4,6 +4,7 @@ import { HubModule } from '../../core/hub/hub.module';
 import { CronOrderService } from './cron-order.service';
 import { OpenOrdersHubRepository } from './open-order-hub.repository';
 import { OpenOrderGateway } from './open-order.gateway';
+import { OpenOrderService } from './open-order.service';
 import { OrderHubRepository } from './order-hub.repository';
 import { OrderSpinalDomainService } from './order-spinal-domain.service';
 import { OrderSynchronizerService } from './order-synchronizer.service';
@@ -17,6 +18,7 @@ import { OrderSynchronizerService } from './order-synchronizer.service';
     OrderSpinalDomainService,
     CronOrderService,
     OpenOrderGateway,
+    OpenOrderService,
   ],
   exports: [OrderSpinalDomainService],
 })

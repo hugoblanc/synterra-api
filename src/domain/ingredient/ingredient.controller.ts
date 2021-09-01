@@ -22,7 +22,6 @@ export class IngredientController {
   }
   @Get()
   findByName(@Query('name') name: string) {
-    console.log('on passe ici ? ' + name);
     return this.ingredientService.findByNameLike(name);
   }
 

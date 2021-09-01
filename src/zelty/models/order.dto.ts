@@ -67,4 +67,5 @@ interface Content {
   type: string;
   quantity: number;
   name: string;
+  item_id: number;
 }

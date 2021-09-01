@@ -15,7 +15,7 @@ export class WsJwtGuard implements CanActivate {
   constructor(private readonly userService: UserService) {}
 
   async canActivate(context: ExecutionContext) {
-    console.log('canActivate guard webscoket');
+    this.logger.log('canActivate guard webscoket');
 
     const client = context.switchToWs().getClient();
     this.logger.log(client.handshake.headers.cookie);
@@ -30,7 +30,7 @@ export class WsJwtGuard implements CanActivate {
 
     const user: UserEntity = await this.userService.findById(jwtPayload.sub);
     // Bonus if you need to access your user after the guard
-    console.log(context.switchToWs().getData());
+    // console.log(context.switchToWs().getData());
     context.switchToWs().getData().user = user;
     return Boolean(user);
   }

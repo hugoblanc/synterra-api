@@ -1,7 +1,15 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
-import { concat, firstValueFrom, forkJoin, merge, Observable } from 'rxjs';
-import { filter, map, mergeMap, tap } from 'rxjs/operators';
+import {
+  concat,
+  EMPTY,
+  firstValueFrom,
+  forkJoin,
+  lastValueFrom,
+  merge,
+  Observable,
+} from 'rxjs';
+import { catchError, filter, map, mergeMap, tap } from 'rxjs/operators';
 import { MainTaskCreatedEvent } from '../../event/jira/main-task-created.event';
 import { SubTasksCreatedEvent } from '../../event/jira/sub-tasks-created.event';
 import { OrdersCreatedEvent } from '../../event/zelty/order-created.event';
@@ -41,7 +49,9 @@ export class TaskService {
       return this.createJiraObjects(factory, order);
     });
 
-    return await firstValueFrom(concat(...createJiraObjects$));
+    if (createJiraObjects$.length > 0) {
+      await lastValueFrom(concat(...createJiraObjects$));
+    }
   }
 
   private createJiraObjects(factory: IssueFactory, order: OrderDTO) {
@@ -58,6 +68,10 @@ export class TaskService {
         this.moveMainTaskIntoEpic(epic, issueCreatedDto),
       ),
       mergeMap(() => this.createSubTasks(factory)),
+      catchError((error) => {
+        this.logger.error(error);
+        return EMPTY;
+      }),
     );
 
     return createJiraObjects$;
@@ -116,16 +130,18 @@ export class TaskService {
 
   private createMainTask(factory: IssueFactory) {
     const mainTask = factory.task;
-    return this.jiraTaskService
-      .postMainTask(mainTask)
-      .pipe(
-        tap((issueCreated) =>
-          this.eventEmitter.emit(
-            MainTaskCreatedEvent.EVENT_NAME,
-            new MainTaskCreatedEvent(issueCreated.id, factory),
-          ),
-        ),
-      );
+    this.logger.log('Main creation ' + mainTask.fields.summary);
+    return this.jiraTaskService.postMainTask(mainTask).pipe(
+      tap((issueCreated) => {
+        this.logger.log(
+          'Main task correctly created ready to send event' + issueCreated.id,
+        );
+        this.eventEmitter.emit(
+          MainTaskCreatedEvent.EVENT_NAME,
+          new MainTaskCreatedEvent(issueCreated.id, factory),
+        );
+      }),
+    );
   }
 
   private moveMainTaskIntoEpic(epic, issueCreated: IssueCreatedDto) {

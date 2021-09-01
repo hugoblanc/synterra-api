@@ -1,12 +1,14 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { createTransport } from 'nodemailer';
-import Mail = require('nodemailer/lib/mailer');
 import { TransporterConfigToken } from './mail.token';
 import { TransporterConfig } from './transporter.config';
+import Mail = require('nodemailer/lib/mailer');
 
 @Injectable()
 export class MailService {
   mailTransporter: Mail;
+  logger = new Logger(MailService.name);
+
   constructor(
     @Inject(TransporterConfigToken) private readonly config: TransporterConfig,
   ) {
@@ -27,6 +29,6 @@ export class MailService {
       html: html, // html body
     });
 
-    console.log('Message sent: %s', info.messageId);
+    this.logger.log('Message sent: %s', info.messageId);
   }
 }

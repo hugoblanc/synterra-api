@@ -4,7 +4,7 @@ import { IssueCreatedDto } from '../../jira/models/jira-issue-created.dto';
 export class SubTasksCreatedEvent {
   public static readonly EVENT_NAME = 'sub-tasks.created';
   constructor(
-    public readonly subTasks: IssueCreatedDto[],
+    public readonly issuesCreated: IssueCreatedDto[],
     public readonly factory: IssueFactory,
   ) {}
 }

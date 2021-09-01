@@ -7,7 +7,7 @@ export abstract class AbstractIssue {
     this.fields = new Fields();
   }
 
-  extactTimingInformation(): TimingInformation {
+  extractTimingInformation(): TimingInformation {
     const maxPreparationTime = this.fields.customfield_10031;
     const maxDeliveryDate = this.fields.customfield_10030;
     const dueDate = this.fields.customfield_10029;
@@ -39,8 +39,8 @@ export class Fields {
   priority: CreatePriority;
   constructor() {
     // TODO uncomment this
-    this.project = { id: '10001' };
-    // this.project = { id: '10007' };
+    // this.project = { id: '10001' };
+    this.project = { id: '10007' };
   }
 }
 

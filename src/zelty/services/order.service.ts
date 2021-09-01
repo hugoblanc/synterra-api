@@ -1,8 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { format, subDays } from 'date-fns';
-import { concat, defer, EMPTY, Observable, of } from 'rxjs';
+import { concat, defer, EMPTY, Observable, of, tap } from 'rxjs';
 import { catchError, map, mergeMap, retryWhen } from 'rxjs/operators';
 import { genericRetryStrategy } from '../../core/rxjs/generic-retry-strategy';
+import { addUniqueIdOnDishes } from '../core/add-id-on-dish.utils';
 import { ZeltyHttpService } from '../core/zelty-http.service';
 import { ZeltyPage } from '../core/zelty-page';
 import { OrderDTO, OrderResponse } from '../models/order.dto';
@@ -22,7 +23,10 @@ export class OrderService {
       .get<OrderResponse>(OrderService.BASE_RESOURCES, {
         params: { opened, expand },
       })
-      .pipe(map((response) => response.orders));
+      .pipe(
+        map((response) => response.orders),
+        tap((orders) => orders.forEach((order) => addUniqueIdOnDishes(order))),
+      );
   }
 
   // getOpenOrders(): Observable<OrderDTO[]> {
