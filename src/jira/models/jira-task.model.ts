@@ -11,7 +11,7 @@ export class JiraTask extends AbstractIssue {
     if (order.comment) {
       this.fields.description += 'Commentaire: ' + order.comment + '  \n';
     }
-    this.fields.description = order.delivery_address?.formatted_address;
+    this.fields.description += order.delivery_address?.formatted_address;
     this.fields.summary = 'Commande ' + order.ref;
   }
 
