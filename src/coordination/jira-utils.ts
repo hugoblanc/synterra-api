@@ -1,5 +1,5 @@
 import { Logger } from '@nestjs/common';
-import { AvgTimeInterval } from '../domain/analytics/model/avg-timing';
+import { AvgTimeIntervalDTO } from '../domain/analytics/model/avg-timing';
 import {
   COMPOSANT_CAPACITY,
   COMPOSANT_DURATION,
@@ -7,7 +7,7 @@ import {
 } from './static-order-info';
 
 export function findTimePreparationTime(timing: {
-  [k: string]: AvgTimeInterval;
+  [k: string]: AvgTimeIntervalDTO;
 }) {
   const logger = new Logger(findTimePreparationTime.name);
   const avgTimeInterval = timing[JIRA_PROGRESS_COLUMN_ID];

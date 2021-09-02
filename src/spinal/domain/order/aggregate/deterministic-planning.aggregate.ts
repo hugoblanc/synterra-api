@@ -6,7 +6,7 @@ import {
   findTimePreparationTime,
 } from '../../../../coordination/jira-utils';
 import { ArrayHelper } from '../../../../core/shared/helper/array.helper';
-import { AvgTiming } from '../../../../domain/analytics/model/avg-timing';
+import { AvgTimingDTO } from '../../../../domain/analytics/model/avg-timing';
 import { EnhancedOrders } from '../../../../domain/tasks/aggregate/enhanced-orders';
 import {
   DishOrderEnhance,
@@ -36,7 +36,7 @@ export class DeterministicPlanningAggregate {
     this.eOrdersToCreate = enhancedOrderToCreate.ordersEnhanced;
   }
 
-  public fillPlanning(avgTiming: AvgTiming) {
+  public fillPlanning(avgTiming: AvgTimingDTO) {
     this.planning = new Planning(avgTiming);
     this.fillPlanningOrders(this.eOrdersCreated);
     this.fillPlanningOrders(this.eOrdersToCreate);
@@ -85,7 +85,7 @@ class Planning {
   logger = new Logger(Planning.name);
   lines: ProductionLine[] = [];
 
-  constructor(avgTiming: AvgTiming) {
+  constructor(avgTiming: AvgTimingDTO) {
     Object.keys(avgTiming).forEach((componentId) => {
       const column = avgTiming[componentId];
       const avgTime = findTimePreparationTime(column);
