@@ -1,13 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { HubRepository } from '@synterra/spinal-rxjs';
+import { SpinalService } from '@synterra/shared';
+import { ListHubRepository } from '@synterra/spinal-rxjs';
 import { DishDTO } from '../../../zelty/models/dish';
-// import { HubRepository } from '../../core/framework/hub-repository';
-import { SpinalService } from '../../core/hub/spinal.service';
 import { DishModel } from '../../models/dishes/dish';
 import { DishesListModel } from '../../models/dishes/dishes-list';
 
 @Injectable()
-export class DishHubRepository extends HubRepository<DishModel, DishDTO> {
+export class DishHubRepository extends ListHubRepository<DishModel, DishDTO> {
   readonly NODE_NAME = 'dishes-list';
 
   protected get emptyNode(): DishesListModel {

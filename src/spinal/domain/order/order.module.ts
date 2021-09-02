@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
+import { HubModule } from '@synterra/shared';
 import { ZeltyModule } from '../../../zelty/zelty.module';
-import { HubModule } from '../../core/hub/hub.module';
 import { CronOrderService } from './cron-order.service';
 import { OpenOrdersHubRepository } from './open-order-hub.repository';
 import { OpenOrderGateway } from './open-order.gateway';

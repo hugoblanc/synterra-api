@@ -1,4 +1,5 @@
 import { Logger } from '@nestjs/common';
+import { AvgTimingDTO } from '@synterra/shared/dist/class/avg-timing';
 import { addMilliseconds, subMilliseconds, subMinutes } from 'date-fns';
 import {
   findCapacityByComponentId,
@@ -6,7 +7,6 @@ import {
   findTimePreparationTime,
 } from '../../../../coordination/jira-utils';
 import { ArrayHelper } from '../../../../core/shared/helper/array.helper';
-import { AvgTimingDTO } from '../../../../domain/analytics/model/avg-timing';
 import { EnhancedOrders } from '../../../../domain/tasks/aggregate/enhanced-orders';
 import {
   DishOrderEnhance,
