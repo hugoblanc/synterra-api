@@ -1,5 +1,5 @@
 import { Logger } from '@nestjs/common';
-import { AvgTimeIntervalDTO } from '../domain/analytics/model/avg-timing';
+import { AvgTimeIntervalDTO } from '@synterra/shared/dist/class/avg-timing';
 import {
   COMPOSANT_CAPACITY,
   COMPOSANT_DURATION,
@@ -14,7 +14,7 @@ export function findTimePreparationTime(timing: {
   if (!avgTimeInterval) {
     logger.warn('Pas de timing \n ' + JSON.stringify(timing));
   }
-  return avgTimeInterval.offset;
+  return avgTimeInterval?.offset;
 }
 
 export function findCapacityByComponentId(componentId: string): number {
