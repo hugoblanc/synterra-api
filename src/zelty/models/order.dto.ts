@@ -60,6 +60,9 @@ export interface DishOrder {
   name: string;
   item_id: number;
   contents: Content[];
+  // maxPreparationTime: Date;
+  // maxDeliveryDate: Date;
+  // dueDate: Date;
 }
 
 interface Content {

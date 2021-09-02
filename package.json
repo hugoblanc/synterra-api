@@ -34,7 +34,7 @@
     "@nestjs/schedule": "^0.4.3",
     "@nestjs/typeorm": "^8.0.1",
     "@nestjs/websockets": "^7.6.15",
-    "@synterra/spinal-rxjs": "0.0.8",
+    "@synterra/spinal-rxjs": "0.0.9",
     "argon2": "^0.27.2",
     "asyncctx": "^2.0.16",
     "class-transformer": "^0.4.0",
