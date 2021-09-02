@@ -1,6 +1,12 @@
 import { Logger } from '@nestjs/common';
-import { addMinutes, subMinutes } from 'date-fns';
+import { addMilliseconds, subMilliseconds, subMinutes } from 'date-fns';
+import {
+  findCapacityByComponentId,
+  findPreparationTimeByComponentId,
+  findTimePreparationTime,
+} from '../../../../coordination/jira-utils';
 import { ArrayHelper } from '../../../../core/shared/helper/array.helper';
+import { AvgTiming } from '../../../../domain/analytics/model/avg-timing';
 import { EnhancedOrders } from '../../../../domain/tasks/aggregate/enhanced-orders';
 import {
   DishOrderEnhance,
@@ -16,7 +22,7 @@ export class DeterministicPlanningAggregate {
   eOrdersCreated: OrderEnhanced[];
   eOrdersToCreate: OrderEnhanced[];
 
-  private planning = new Planning();
+  private planning: Planning;
 
   constructor(
     orderToCreate: OrderDTO[],
@@ -30,7 +36,8 @@ export class DeterministicPlanningAggregate {
     this.eOrdersToCreate = enhancedOrderToCreate.ordersEnhanced;
   }
 
-  public fillPlanning() {
+  public fillPlanning(avgTiming: AvgTiming) {
+    this.planning = new Planning(avgTiming);
     this.fillPlanningOrders(this.eOrdersCreated);
     this.fillPlanningOrders(this.eOrdersToCreate);
   }
@@ -48,12 +55,12 @@ export class DeterministicPlanningAggregate {
       const sameDateOrders: OrderEnhanced[] = groupedOrders[date];
       for (const order of sameDateOrders) {
         const dishes = dishFinder(order) as DishOrderEnhance[];
-        const groupedDishes = this.groupByLabel(dishes);
-        const labels = Object.keys(groupedDishes);
-        for (const label of labels) {
+        const groupedDishes = this.groupByComponentId(dishes);
+        const componentIds = Object.keys(groupedDishes);
+        for (const componentId of componentIds) {
           this.planning.addDishes(
-            label,
-            groupedDishes[label],
+            componentId,
+            groupedDishes[componentId],
             order.maxDeliveryDate,
           );
         }
@@ -61,8 +68,8 @@ export class DeterministicPlanningAggregate {
     }
   }
 
-  private groupByLabel(dishes: DishOrderEnhance[]) {
-    return ArrayHelper.groupBy(dishes, 'preparation', 'label');
+  private groupByComponentId(dishes: DishOrderEnhance[]) {
+    return ArrayHelper.groupBy(dishes, 'component', 'id');
   }
 
   private groupByDueDate(orders: OrderEnhanced[]) {
@@ -78,19 +85,29 @@ class Planning {
   logger = new Logger(Planning.name);
   lines: ProductionLine[] = [];
 
-  constructor() {
-    this.lines.push(new ProductionLine(8, 'burger', 5));
-    this.lines.push(new ProductionLine(8, 'frites', 4));
-    this.lines.push(new ProductionLine(1, 'thai', 4));
-    this.lines.push(new ProductionLine(1, 'salade', 4));
-    this.lines.push(new ProductionLine(30, 'other', 0));
+  constructor(avgTiming: AvgTiming) {
+    Object.keys(avgTiming).forEach((componentId) => {
+      const column = avgTiming[componentId];
+      const avgTime = findTimePreparationTime(column);
+      const capacity = findCapacityByComponentId(componentId);
+      if (!capacity) {
+        return;
+      }
+      this.lines.push(new ProductionLine(capacity, componentId, avgTime));
+    });
   }
 
-  addDishes(label: string, dishes: DishOrderEnhance[], deliveryDate: Date) {
-    const line = this.findLineByLabel(label);
+  addDishes(
+    componentId: string,
+    dishes: DishOrderEnhance[],
+    deliveryDate: Date,
+  ) {
+    let line = this.findLineByComponentId(componentId);
     if (!line) {
-      this.logger.error(`Label: ${label} Dishes ${dishes.map((d) => d.name)} `);
-      return;
+      this.logger.warn(
+        `Component ID: ${componentId} Dishes ${dishes.map((d) => d.name)} `,
+      );
+      line = this.createLineIfDataWasMissing(componentId);
     }
     const ids = dishes.map((d) => d.id);
     line.attributeSlots(deliveryDate, ids);
@@ -105,8 +122,16 @@ class Planning {
     }
   }
 
-  private findLineByLabel(label: string) {
-    return this.lines.find((l) => l.type === label);
+  private findLineByComponentId(componentId: string) {
+    return this.lines.find((l) => l.type === componentId);
+  }
+
+  private createLineIfDataWasMissing(componentId: string) {
+    const capacity = findCapacityByComponentId(componentId);
+    const preparationTime = findPreparationTimeByComponentId(componentId);
+    const line = new ProductionLine(capacity, componentId, preparationTime);
+    this.lines.push(line);
+    return line;
   }
 
   toString() {
@@ -119,7 +144,7 @@ class ProductionLine {
   constructor(
     public capacity: number,
     public type: string,
-    public timeToPrepare: number,
+    public timeToPrepareMs: number,
   ) {}
 
   attributeSlots(startDate: Date, ids: number[]): void {
@@ -142,7 +167,7 @@ class ProductionLine {
   }
 
   private createSlot(startDate: Date, ids: number[]) {
-    const endDate = addMinutes(startDate, this.timeToPrepare);
+    const endDate = addMilliseconds(startDate, this.timeToPrepareMs);
     const newSlot = new Slot(ids, startDate, endDate);
     this.slots.push(newSlot);
   }
@@ -153,7 +178,7 @@ class ProductionLine {
   ): FindingSlotResult {
     let availableCapacity: number;
     let endDate = startDate;
-    startDate = subMinutes(startDate, this.timeToPrepare);
+    startDate = subMilliseconds(startDate, this.timeToPrepareMs);
     do {
       const overlappingSlots = this.slots.filter((s) =>
         s.isOnDate(startDate, endDate),
@@ -174,7 +199,7 @@ class ProductionLine {
   ): FindingSlotResult {
     let availableCapacity: number;
     let endDate = startDate;
-    startDate = subMinutes(startDate, this.timeToPrepare);
+    startDate = subMilliseconds(startDate, this.timeToPrepareMs);
     do {
       const overlappingSlots = this.slots.filter((s) =>
         s.isOnDate(startDate, endDate),

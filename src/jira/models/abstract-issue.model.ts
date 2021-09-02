@@ -1,3 +1,4 @@
+import { currentJiraProject } from '../../coordination/static-order-info';
 import { CreateComponent, CreatePriority } from './jira-issue-created.dto';
 
 export abstract class AbstractIssue {
@@ -22,7 +23,7 @@ export interface TimingInformation {
 }
 
 export class Fields {
-  project: Project;
+  project: Project = currentJiraProject;
   summary: string;
   issuetype: Project;
   parent?: Project;
@@ -37,11 +38,6 @@ export class Fields {
   labels: string[];
   description: string;
   priority: CreatePriority;
-  constructor() {
-    // TODO uncomment this
-    // this.project = { id: '10001' };
-    this.project = { id: '10007' };
-  }
 }
 
 // interface Priority {

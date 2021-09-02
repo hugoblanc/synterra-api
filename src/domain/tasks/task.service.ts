@@ -21,6 +21,7 @@ import { IssueCreatedDto } from '../../jira/models/jira-issue-created.dto';
 import { DishSpinalDomainService } from '../../spinal/domain/dish-spinal/dish-spinal-domain.service';
 import { DeterministicPlanningAggregate } from '../../spinal/domain/order/aggregate/deterministic-planning.aggregate';
 import { OrderDTO } from '../../zelty/models/order.dto';
+import { SynterraAnalyticsService } from '../analytics/synterra-analytics.service';
 
 @Injectable()
 export class TaskService {
@@ -29,19 +30,23 @@ export class TaskService {
   constructor(
     private readonly jiraTaskService: JiraTaskService,
     private readonly dishSpinalService: DishSpinalDomainService,
+    private readonly synterraAnalyticsService: SynterraAnalyticsService,
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
   @OnEvent(OrdersCreatedEvent.EVENT_NAME)
   async createTask(createdEvent: OrdersCreatedEvent) {
     const dishes = await firstValueFrom(this.dishSpinalService.findAll());
+    const pastAverage = await firstValueFrom(
+      this.synterraAnalyticsService.getPastAverage(),
+    );
     const planning = new DeterministicPlanningAggregate(
       createdEvent.ordersToCreate,
       createdEvent.ordersCreated,
       dishes,
     );
 
-    planning.fillPlanning();
+    planning.fillPlanning(pastAverage);
 
     const orderToCreate = planning.eOrdersToCreate;
     const createJiraObjects$ = orderToCreate.map((order) => {

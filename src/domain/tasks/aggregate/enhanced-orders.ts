@@ -3,10 +3,7 @@ import {
   findJiraComponent,
   selectPriority,
 } from '../../../coordination/order-priority/order-priority.util';
-import {
-  calculateMaxDeliveryTime,
-  findPreparationTime,
-} from '../../../coordination/order-timing/order-timing.utils';
+import { calculateMaxDeliveryTime } from '../../../coordination/order-timing/order-timing.utils';
 import { dishFinder } from '../../../zelty/core/dish-finder.utils';
 import { DishDTO } from '../../../zelty/models/dish';
 import { DishOrder, OrderDTO } from '../../../zelty/models/order.dto';
@@ -15,9 +12,11 @@ import { OrderEnhanced } from '../models/task-order';
 export class EnhancedOrders {
   public ordersEnhanced: OrderEnhanced[] = [];
 
+  private fullDishesFinder: FullDishFinder;
   private logger = new Logger(EnhancedOrders.name);
 
-  constructor(orders: OrderDTO[], private readonly dishes: DishDTO[]) {
+  constructor(orders: OrderDTO[], dishes: DishDTO[]) {
+    this.fullDishesFinder = new FullDishFinder(dishes);
     for (const order of orders) {
       this.enhanceDishes(order);
     }
@@ -32,15 +31,10 @@ export class EnhancedOrders {
       order.delivery_address?.city,
     );
     for (const dish of dishOrders) {
-      const fullDish = this.findFullDish(dish);
+      const fullDish = this.fullDishesFinder.findFullDish(dish);
 
       const priority = selectPriority(fullDish);
       const component = findJiraComponent(fullDish);
-      const preparation = findPreparationTime(fullDish);
-
-      if (preparation == null) {
-        this.logger.error(`Missing preparation for dish ${fullDish.name}`);
-      }
 
       if (component == null) {
         this.logger.error(`Missing component for dish ${fullDish.name}`);
@@ -50,11 +44,16 @@ export class EnhancedOrders {
         this.logger.error(`Missing priority for dish ${fullDish.name}`);
       }
 
-      Object.assign(dish, { preparation, component, priority });
+      Object.assign(dish, { component, priority });
     }
   }
+}
 
-  private findFullDish(dish: DishOrder): DishDTO {
+export class FullDishFinder {
+  private logger = new Logger(FullDishFinder.name);
+
+  constructor(private readonly dishes: DishDTO[]) {}
+  public findFullDish(dish: DishOrder): DishDTO {
     const fullDish = this.dishes.find(
       (d) => d.id === (dish.item_id ?? dish.id),
     );

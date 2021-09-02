@@ -1,4 +1,3 @@
-import { DishPreparationInformation } from '../../../coordination/order-timing/order-timing.utils';
 import { ModifyDeep } from '../../../core/typescript/modify-deep';
 import {
   CreateComponent,
@@ -24,7 +23,6 @@ export interface OrderEnhanced extends OrderDTO {
 interface DishOverride {
   priority: CreatePriority | undefined;
   component: CreateComponent;
-  preparation: DishPreparationInformation | undefined;
   startPreparation: Date;
 }
 
