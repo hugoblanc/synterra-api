@@ -89,8 +89,9 @@ class Planning {
     Object.keys(avgTiming).forEach((componentId) => {
       const column = avgTiming[componentId];
       const avgTime = findTimePreparationTime(column);
+      this.logger.log('Average time found ' + avgTime);
       const capacity = findCapacityByComponentId(componentId);
-      if (!capacity) {
+      if (!capacity || !avgTime) {
         return;
       }
       this.lines.push(new ProductionLine(capacity, componentId, avgTime));
