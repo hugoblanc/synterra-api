@@ -1,9 +1,9 @@
-import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
+import { AvgTimingModule } from '@synterra/shared';
 import { SynterraAnalyticsService } from './synterra-analytics.service';
 
 @Module({
-  imports: [HttpModule],
+  imports: [AvgTimingModule],
   controllers: [],
   providers: [SynterraAnalyticsService],
   exports: [SynterraAnalyticsService],

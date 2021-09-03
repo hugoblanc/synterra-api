@@ -1,8 +1,8 @@
-import { AnalyticsModule } from './domain/analytics/analytics.module';
 import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
 import { AuthModule } from './core/auth/auth.module';
 import { ConfigModule } from './core/config/config.module';
 import { RequestContextMiddleware } from './core/context/request-context.middleware';
+import { AnalyticsModule } from './domain/analytics/analytics.module';
 import { DishModule } from './domain/dish/dish.module';
 import { DomainModule } from './domain/domain.module';
 import { JiraModule } from './jira/jira.module';
@@ -12,7 +12,6 @@ import { ZeltyModule } from './zelty/zelty.module';
 
 @Module({
   imports: [
-    AnalyticsModule,
     SpinalModule,
     ZeltyModule,
     ConfigModule,
@@ -21,6 +20,7 @@ import { ZeltyModule } from './zelty/zelty.module';
     ReportingModule,
     JiraModule,
     AuthModule,
+    AnalyticsModule,
   ],
 })
 export class AppModule {

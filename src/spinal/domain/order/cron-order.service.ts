@@ -1,10 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Cron } from '@nestjs/schedule';
-import { forkJoin, of } from 'rxjs';
+import { forkJoin } from 'rxjs';
 import { OrdersCreatedEvent } from '../../../event/zelty/order-created.event';
 import { OrderDTO } from '../../../zelty/models/order.dto';
-import { orderMocke } from '../../../zelty/services/order-mock';
 import { OrderService } from '../../../zelty/services/order.service';
 import { OpenOrderModel } from '../../models/open-orders/open-order';
 import { OpenOrdersListModel } from '../../models/open-orders/open-orders-list';
@@ -26,9 +25,9 @@ export class CronOrderService {
   handleCron() {
     const spinalOrders$ = this.openOrdersHubRepository.load();
 
-    // const opened$ = this.orderService.getOpenOrders();
+    const opened$ = this.orderService.getOpenOrders();
     // TODO remove mock
-    const opened$ = of(orderMocke.orders as OrderDTO[]);
+    // const opened$ = of(orderMocke.orders as OrderDTO[]);
 
     forkJoin([opened$, spinalOrders$]).subscribe(
       (value: [OrderDTO[], OpenOrdersListModel]) => {
