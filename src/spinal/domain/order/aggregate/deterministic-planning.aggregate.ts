@@ -3,7 +3,6 @@ import { AvgTimingDTO } from '@synterra/shared/dist/class/avg-timing';
 import { addMilliseconds, subMilliseconds, subMinutes } from 'date-fns';
 import {
   findCapacityByComponentId,
-  findPreparationTimeByComponentId,
   findTimePreparationTime,
 } from '../../../../coordination/jira-utils';
 import { ArrayHelper } from '../../../../core/shared/helper/array.helper';
@@ -86,12 +85,22 @@ class Planning {
   lines: ProductionLine[] = [];
 
   constructor(avgTiming: AvgTimingDTO) {
+    console.log(avgTiming);
+
     Object.keys(avgTiming).forEach((componentId) => {
       const column = avgTiming[componentId];
       const avgTime = findTimePreparationTime(column);
       this.logger.log('Average time found ' + avgTime);
       const capacity = findCapacityByComponentId(componentId);
-      if (!capacity || !avgTime) {
+      if (capacity == null || avgTime == null) {
+        this.logger.error(
+          "No capacity or time found, vous n'aurriez pas du voir ça " +
+            column +
+            ' component id ' +
+            componentId,
+        );
+        console.log(avgTiming);
+
         return;
       }
       this.lines.push(new ProductionLine(capacity, componentId, avgTime));
@@ -103,12 +112,11 @@ class Planning {
     dishes: DishOrderEnhance[],
     deliveryDate: Date,
   ) {
-    let line = this.findLineByComponentId(componentId);
+    const line = this.findLineByComponentId(componentId);
     if (!line) {
-      this.logger.warn(
+      this.logger.error(
         `Component ID: ${componentId} Dishes ${dishes.map((d) => d.name)} `,
       );
-      line = this.createLineIfDataWasMissing(componentId);
     }
     const ids = dishes.map((d) => d.id);
     line.attributeSlots(deliveryDate, ids);
@@ -125,14 +133,6 @@ class Planning {
 
   private findLineByComponentId(componentId: string) {
     return this.lines.find((l) => l.type === componentId);
-  }
-
-  private createLineIfDataWasMissing(componentId: string) {
-    const capacity = findCapacityByComponentId(componentId);
-    const preparationTime = findPreparationTimeByComponentId(componentId);
-    const line = new ProductionLine(capacity, componentId, preparationTime);
-    this.lines.push(line);
-    return line;
   }
 
   toString() {

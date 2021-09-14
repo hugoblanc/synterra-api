@@ -1,3 +1,5 @@
+import { AvgTimingDTO } from '@synterra/shared/dist/class/avg-timing';
+
 export const TAG_PRIORITIES = new Map<number, string>([
   [68231, '1'],
   [68232, '1'],
@@ -70,13 +72,39 @@ export const JIRA_PROGRESS_COLUMN_ID = '3';
 //   ['10008', 1], // Salade
 //   ['10010', 30], // Others
 // ]);
-// export const COMPOSANT_DURATION = new Map<string, number>([
-//   ['10006', 5 * 60 * 1000], //BURGER BURGER
-//   ['10007', 4 * 60 * 1000], // Accompagnement - Friteuse
-//   ['10009', 4 * 60 * 1000], // THAI
-//   ['10008', 4 * 60 * 1000], // Salade
-//   ['10010', 0 * 60 * 1000], // Salade
-// ]);
+
+// export const COMPOSANT_DURATION_STATIC: AvgTimingDTO = {
+//   '10006': {
+//     '3': {
+//       count: 1,
+//       offset: 5 * 60 * 1000,
+//     },
+//   },
+//   '10007': {
+//     '3': {
+//       count: 1,
+//       offset: 4 * 60 * 1000,
+//     },
+//   },
+//   '10009': {
+//     '3': {
+//       count: 1,
+//       offset: 4 * 60 * 1000,
+//     },
+//   },
+//   '10008': {
+//     '3': {
+//       count: 1,
+//       offset: 4 * 60 * 1000,
+//     },
+//   },
+//   '10010': {
+//     '3': {
+//       count: 1,
+//       offset: 0 * 60 * 1000,
+//     },
+//   },
+// };
 
 // LOCAL DATA
 
@@ -99,13 +127,38 @@ export const COMPOSANT_CAPACITY = new Map<string, number>([
   ['10015', 30], // Others
 ]);
 
-export const COMPOSANT_DURATION = new Map<string, number>([
-  ['10013', 5 * 60 * 1000], //BURGER BURGER
-  ['10014', 4 * 60 * 1000], // Accompagnement - Friteuse
-  ['10011', 4 * 60 * 1000], // THAI
-  ['10012', 4 * 60 * 1000], // Salade
-  ['10015', 0 * 60 * 1000], // Others
-]);
+export const COMPOSANT_DURATION_STATIC: AvgTimingDTO = {
+  '10013': {
+    '3': {
+      count: 1,
+      offset: 5 * 60 * 1000,
+    },
+  },
+  '10014': {
+    '3': {
+      count: 1,
+      offset: 4 * 60 * 1000,
+    },
+  },
+  '10011': {
+    '3': {
+      count: 1,
+      offset: 4 * 60 * 1000,
+    },
+  },
+  '10012': {
+    '3': {
+      count: 1,
+      offset: 4 * 60 * 1000,
+    },
+  },
+  '10015': {
+    '3': {
+      count: 1,
+      offset: 0 * 60 * 1000,
+    },
+  },
+};
 
 export const defaultComponent = { id: '10015' };
 export const currentJiraProject = { id: '10007' };

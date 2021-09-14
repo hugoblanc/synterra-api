@@ -2,7 +2,6 @@ import { Logger } from '@nestjs/common';
 import { AvgTimeIntervalDTO } from '@synterra/shared/dist/class/avg-timing';
 import {
   COMPOSANT_CAPACITY,
-  COMPOSANT_DURATION,
   JIRA_PROGRESS_COLUMN_ID,
 } from './static-order-info';
 
@@ -19,8 +18,4 @@ export function findTimePreparationTime(timing: {
 
 export function findCapacityByComponentId(componentId: string): number {
   return COMPOSANT_CAPACITY.get(componentId);
-}
-
-export function findPreparationTimeByComponentId(componentId: string) {
-  return COMPOSANT_DURATION.get(componentId);
 }

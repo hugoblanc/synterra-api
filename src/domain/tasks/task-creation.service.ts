@@ -26,8 +26,8 @@ export class TaskCreationService {
   @OnEvent(OrdersCreatedEvent.EVENT_NAME)
   async createTask(createdEvent: OrdersCreatedEvent) {
     const dishes = await firstValueFrom(this.dishSpinalService.findAll());
-    const pastAverage = await firstValueFrom(
-      this.synterraAnalyticsService.getPastAverage(),
+    const mixedAverage = await firstValueFrom(
+      this.synterraAnalyticsService.getMixedAverage(),
     );
     const planning = new DeterministicPlanningAggregate(
       createdEvent.ordersToCreate,
@@ -35,7 +35,7 @@ export class TaskCreationService {
       dishes,
     );
 
-    planning.fillPlanning(pastAverage);
+    planning.fillPlanning(mixedAverage);
 
     const orderToCreate = planning.eOrdersToCreate;
     const createJiraObjects$ = orderToCreate.map((order) => {
