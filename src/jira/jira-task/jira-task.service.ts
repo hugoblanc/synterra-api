@@ -1,43 +1,92 @@
-import { Injectable } from '@nestjs/common';
-import { forkJoin, Observable } from 'rxjs';
-import { JiraHttpService } from '../jira-http/jira-http.service';
+import { Injectable, Logger } from '@nestjs/common';
+import { filter, map, merge, mergeMap, Observable, tap } from 'rxjs';
+import { OrderDTO } from '../../zelty/models/order.dto';
 import { JiraEpic } from '../models/jira-epic.model';
 import { IssueCreatedDto } from '../models/jira-issue-created.dto';
-import { JiraSearchResults } from '../models/jira-search-results.dto';
 import { JiraSubTask } from '../models/jira-sub-task.model';
 import { JiraTask } from '../models/jira-task.model';
+import { JiraCommandService } from './jira-command.service';
+import { JiraQueryService } from './jira-query.service';
+import { createSummaryFromDate } from './jira-summary.utils';
 
 @Injectable()
 export class JiraTaskService {
-  constructor(private readonly http: JiraHttpService) {}
+  logger = new Logger(JiraTaskService.name);
 
-  getById(id: string) {
-    return this.http.get('agile/1.0/issue/' + id);
+  constructor(
+    private readonly queryService: JiraQueryService,
+    private readonly commandService: JiraCommandService,
+  ) {}
+
+  public getOrCreateEpic(order: OrderDTO) {
+    const getExisting$ = this.getEpicIfExisting(order);
+    const createIfNotExist$ = this.createEpicIfNotExisting(order);
+
+    return merge(getExisting$, createIfNotExist$);
   }
 
-  searchBySummary(summary: string): Observable<JiraSearchResults> {
-    const jql = `summary~"${summary}"`;
-    return this.http.get<JiraSearchResults>('api/3/search?jql=' + jql, {});
-  }
-
-  moveTaskIntoEpic(epicId: string, taskId: string): Observable<void> {
-    return this.http.post<void>(`agile/1.0/epic/${epicId}/issue`, {
-      issues: [taskId],
-    });
-  }
-
-  postEpic(epic: JiraEpic): Observable<IssueCreatedDto> {
-    return this.http.post<IssueCreatedDto>('api/2/issue', epic);
-  }
-
-  postMainTask(mainTask: JiraTask): Observable<IssueCreatedDto> {
-    return this.http.post<IssueCreatedDto>('api/2/issue', mainTask);
-  }
-
-  postSubTasks(subTasks: JiraSubTask[]): Observable<IssueCreatedDto[]> {
-    const postSubTasks$ = subTasks.map((sub) =>
-      this.http.post('api/2/issue', sub),
+  public moveTaskIntoEpic(epic, issueCreated: IssueCreatedDto) {
+    this.logger.log(
+      'Moving task into epic :' + epic.id + ' mainTask: ' + issueCreated.id,
     );
-    return forkJoin(postSubTasks$);
+    return this.commandService.updateTaskParent(epic, issueCreated.id);
+  }
+
+  public postMainTask(mainTask: JiraTask) {
+    return this.commandService.postMainTask(mainTask).pipe(
+      tap((issueCreated) => {
+        this.logger.log(
+          'Main task correctly created ready to send event' + issueCreated.id,
+        );
+      }),
+    );
+  }
+
+  public createSubTasks(subTasks: JiraSubTask[]) {
+    return this.commandService.postSubTasks(subTasks);
+  }
+
+  private getEpicIfExisting(order: OrderDTO) {
+    return this.searchEpicByDueDate(order.due_date).pipe(
+      filter((searchResults) => searchResults.total > 0),
+      map((searchResults) => {
+        this.logger.log('Epic is already existing: ' + searchResults.total);
+        if (searchResults.total > 1) {
+          this.logger.warn(
+            'Domain error: More than one epic find for a specific summary',
+          );
+        }
+        return searchResults.issues[0];
+      }),
+    );
+  }
+
+  private searchEpicByDueDate(dueDate: string) {
+    const summary = createSummaryFromDate(dueDate);
+    this.logger.log('Epic summary ' + summary);
+    return this.queryService.searchBySummary(summary);
+  }
+
+  private createEpicIfNotExisting(order: OrderDTO) {
+    return this.isEpicAlreadyExisting(order).pipe(
+      filter((isExisting) => !isExisting),
+      mergeMap(() => this.createEpic(order)),
+      mergeMap((issueCreatedDto) => {
+        this.logger.log('Epic correctly created' + issueCreatedDto.id);
+        return this.queryService.getById(issueCreatedDto.id);
+      }),
+    );
+  }
+
+  private createEpic(order: OrderDTO) {
+    const epicSummary = createSummaryFromDate(order.due_date);
+    const epic = new JiraEpic(epicSummary);
+    return this.commandService.postEpic(epic);
+  }
+
+  private isEpicAlreadyExisting(order: OrderDTO): Observable<boolean> {
+    return this.searchEpicByDueDate(order.due_date).pipe(
+      map((searchResults) => searchResults.total > 0),
+    );
   }
 }
