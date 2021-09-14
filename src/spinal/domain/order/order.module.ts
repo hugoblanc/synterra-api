@@ -20,6 +20,6 @@ import { OrderSynchronizerService } from './order-synchronizer.service';
     OpenOrderGateway,
     OpenOrderService,
   ],
-  exports: [OrderSpinalDomainService],
+  exports: [OrderSpinalDomainService, OpenOrdersHubRepository],
 })
 export class OrderModule {}

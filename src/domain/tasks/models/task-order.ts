@@ -23,7 +23,7 @@ export interface OrderEnhanced extends OrderDTO {
 interface DishOverride {
   priority: CreatePriority | undefined;
   component: CreateComponent;
-  startPreparation: Date;
+  maxPreparationTime: string;
 }
 
 export interface DishOrderEnhance extends DishOrder, DishOverride {}

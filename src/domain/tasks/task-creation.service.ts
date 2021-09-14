@@ -74,7 +74,7 @@ export class TaskCreationService {
   private createMainTask(factory: IssueFactory) {
     const mainTask = factory.task;
     this.logger.log('Main creation ' + mainTask.fields.summary);
-    return this.jiraTaskService.postMainTask(mainTask).pipe(
+    return this.jiraTaskService.createMainTask(mainTask).pipe(
       tap((issueCreated) => {
         this.eventEmitter.emit(
           MainTaskCreatedEvent.EVENT_NAME,

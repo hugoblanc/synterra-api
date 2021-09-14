@@ -34,4 +34,16 @@ export class JiraHttpService {
       .post<T>(JiraHttpService.BASE_URL + url, body, config)
       .pipe(map((response) => response.data));
   }
+
+  public put<T = any>(
+    url: string,
+    body: any,
+    config: AxiosRequestConfig = {},
+  ): Observable<T> {
+    config.headers = { Authorization: JiraHttpService.JIRA_TOKEN };
+
+    return this.http
+      .put<T>(JiraHttpService.BASE_URL + url, body, config)
+      .pipe(map((response) => response.data));
+  }
 }

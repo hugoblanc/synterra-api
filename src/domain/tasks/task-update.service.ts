@@ -1,11 +1,42 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
+import { firstValueFrom, lastValueFrom } from 'rxjs';
 import { DailyAvgUpdatedEvent } from '../../event/analytics/daily-avg-updated.event';
+import { JiraTaskService } from '../../jira/jira-task/jira-task.service';
+import { DishSpinalDomainService } from '../../spinal/domain/dish-spinal/dish-spinal-domain.service';
+import { DeterministicPlanningAggregate } from '../../spinal/domain/order/aggregate/deterministic-planning.aggregate';
+import { OpenOrdersHubRepository } from '../../spinal/domain/order/open-order-hub.repository';
+import { OrderUpdateFinder } from './aggregate/order-update-finder';
 
 @Injectable()
 export class TaskUpdateService {
   private logger = new Logger(TaskUpdateService.name);
 
+  constructor(
+    private readonly dishSpinalService: DishSpinalDomainService,
+    private readonly openOrderRepository: OpenOrdersHubRepository,
+    private readonly jiraTaskService: JiraTaskService,
+  ) {}
+
   @OnEvent(DailyAvgUpdatedEvent.EVENT_NAME)
-  realtimeUpdate(event: DailyAvgUpdatedEvent) {}
+  async realtimeUpdate(event: DailyAvgUpdatedEvent) {
+    const dailyAverage = event.dailyAverage;
+    const dishes = await firstValueFrom(this.dishSpinalService.findAll());
+    const openOrdersDTO = await firstValueFrom(
+      this.openOrderRepository.findAll(),
+    );
+
+    const planning = new DeterministicPlanningAggregate(
+      [],
+      openOrdersDTO,
+      dishes,
+    );
+    planning.fillPlanning(dailyAverage);
+
+    const ordersCreated = planning.eOrdersCreated;
+
+    const orderUpdateFinder = new OrderUpdateFinder(ordersCreated, planning);
+    const updates = orderUpdateFinder.findUpdates();
+    await lastValueFrom(this.jiraTaskService.updateSubTasks(updates));
+  }
 }

@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { filter, map, merge, mergeMap, Observable, tap } from 'rxjs';
+import { concat, filter, map, merge, mergeMap, Observable, tap } from 'rxjs';
 import { OrderDTO } from '../../zelty/models/order.dto';
+import { SubTaskUpdateDTO } from '../models/sub-task-update.model';
 import { JiraEpic } from '../models/jira-epic.model';
 import { IssueCreatedDto } from '../models/jira-issue-created.dto';
 import { JiraSubTask } from '../models/jira-sub-task.model';
@@ -21,7 +22,6 @@ export class JiraTaskService {
   public getOrCreateEpic(order: OrderDTO) {
     const getExisting$ = this.getEpicIfExisting(order);
     const createIfNotExist$ = this.createEpicIfNotExisting(order);
-
     return merge(getExisting$, createIfNotExist$);
   }
 
@@ -32,7 +32,7 @@ export class JiraTaskService {
     return this.commandService.updateTaskParent(epic, issueCreated.id);
   }
 
-  public postMainTask(mainTask: JiraTask) {
+  public createMainTask(mainTask: JiraTask) {
     return this.commandService.postMainTask(mainTask).pipe(
       tap((issueCreated) => {
         this.logger.log(
@@ -44,6 +44,13 @@ export class JiraTaskService {
 
   public createSubTasks(subTasks: JiraSubTask[]) {
     return this.commandService.postSubTasks(subTasks);
+  }
+
+  public updateSubTasks(subTasksUpdates: SubTaskUpdateDTO[]) {
+    const updates$ = subTasksUpdates.map((subTaskUpdate) =>
+      this.commandService.updateSubTask(subTaskUpdate, subTaskUpdate.id),
+    );
+    return concat(...updates$);
   }
 
   private getEpicIfExisting(order: OrderDTO) {
