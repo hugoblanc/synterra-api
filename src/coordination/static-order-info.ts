@@ -73,38 +73,42 @@ export const COMPOSANT_CAPACITY = new Map<string, number>([
   ['10010', 30], // Others
 ]);
 
-export const COMPOSANT_DURATION_STATIC: AvgTimingDTO = {
-  '10006': {
-    '3': {
-      count: 1,
-      offset: 5 * 60 * 1000,
+export function getStaticDuration() {
+  const COMPOSANT_DURATION_STATIC: AvgTimingDTO = {
+    '10006': {
+      '3': {
+        count: 1,
+        offset: 5 * 60 * 1000,
+      },
     },
-  },
-  '10007': {
-    '3': {
-      count: 1,
-      offset: 4 * 60 * 1000,
+    '10007': {
+      '3': {
+        count: 1,
+        offset: 4 * 60 * 1000,
+      },
     },
-  },
-  '10009': {
-    '3': {
-      count: 1,
-      offset: 4 * 60 * 1000,
+    '10009': {
+      '3': {
+        count: 1,
+        offset: 4 * 60 * 1000,
+      },
     },
-  },
-  '10008': {
-    '3': {
-      count: 1,
-      offset: 4 * 60 * 1000,
+    '10008': {
+      '3': {
+        count: 1,
+        offset: 4 * 60 * 1000,
+      },
     },
-  },
-  '10010': {
-    '3': {
-      count: 1,
-      offset: 0 * 60 * 1000,
+    '10010': {
+      '3': {
+        count: 1,
+        offset: 0 * 60 * 1000,
+      },
     },
-  },
-};
+  };
+
+  return COMPOSANT_DURATION_STATIC;
+}
 
 // LOCAL DATA
 

@@ -6,7 +6,7 @@ import {
 } from '@synterra/shared';
 import { AvgTimingDTO } from '@synterra/shared/dist/class/avg-timing';
 import { filter, forkJoin, map, Observable } from 'rxjs';
-import { COMPOSANT_DURATION_STATIC } from '../../coordination/static-order-info';
+import { getStaticDuration } from '../../coordination/static-order-info';
 import { DailyAvgUpdatedEvent } from '../../event/analytics/daily-avg-updated.event';
 import { isPreparationTimeUpdated } from './selectors/avg.selector';
 
@@ -21,15 +21,31 @@ export class SynterraAnalyticsService implements OnModuleInit {
   ) {}
 
   getMixedAverage(): Observable<AvgTimingDTO> {
-    const staticAverage = COMPOSANT_DURATION_STATIC;
+    const staticAverage = getStaticDuration();
     const pastAverage$ = this.getPastAverage();
     const dailyAverage$ = this.getDailyAverage();
     const mixedAverage = forkJoin([pastAverage$, dailyAverage$]);
     return mixedAverage.pipe(
       map(([pastAverage, dailyAverage]) =>
-        Object.assign({}, staticAverage, pastAverage, dailyAverage),
+        this.recursivelyMix(staticAverage, pastAverage, dailyAverage),
       ),
     );
+  }
+
+  recursivelyMix(...averages: any[]) {
+    const first = averages.shift();
+    const firstKeys = Object.keys(first);
+    for (const key of firstKeys) {
+      const value = first[key];
+      if (typeof value === 'object') {
+        const values = averages
+          .map((avg) => avg[key])
+          .filter((value) => typeof value === 'object');
+        this.recursivelyMix(value, values);
+        Object.assign(value, ...values);
+      }
+    }
+    return first;
   }
 
   getPastAverage(): Observable<AvgTimingDTO> {
