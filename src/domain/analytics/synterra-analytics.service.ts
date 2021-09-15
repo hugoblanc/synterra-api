@@ -1,13 +1,14 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import {
   AvgDailyTimingHubRepository,
   AvgPastTimingHubRepository,
 } from '@synterra/shared';
 import { AvgTimingDTO } from '@synterra/shared/dist/class/avg-timing';
-import { forkJoin, map, Observable } from 'rxjs';
-import { EventEmitter2 } from '@nestjs/event-emitter';
-import { DailyAvgUpdatedEvent } from '../../event/analytics/daily-avg-updated.event';
+import { filter, forkJoin, map, Observable } from 'rxjs';
 import { COMPOSANT_DURATION_STATIC } from '../../coordination/static-order-info';
+import { DailyAvgUpdatedEvent } from '../../event/analytics/daily-avg-updated.event';
+import { isPreparationTimeUpdated } from './selectors/avg.selector';
 
 @Injectable()
 export class SynterraAnalyticsService implements OnModuleInit {
@@ -44,27 +45,30 @@ export class SynterraAnalyticsService implements OnModuleInit {
   }
 
   onModuleInit() {
-    this.dailyHubRepository.watch().subscribe((value: spinal.Model) => {
-      this.logger.debug('Daily value changed');
-      const event = new DailyAvgUpdatedEvent(value.get());
-      this.eventEmitter.emit(DailyAvgUpdatedEvent.EVENT_NAME, event);
-    });
+    this.dailyHubRepository
+      .watch()
+      .pipe(filter((model) => isPreparationTimeUpdated(model)))
+      .subscribe(() => {
+        this.logger.debug('Daily value changed');
+        const event = new DailyAvgUpdatedEvent();
+        this.eventEmitter.emit(DailyAvgUpdatedEvent.EVENT_NAME, event);
+      });
 
     this.pastHubRepository.watch().subscribe((value: spinal.Model) => {
       this.logger.debug('Past value changed');
-      const timingModel: spinal.Model = value['10012']['3'];
-      console.log('timingModel ' + timingModel.has_been_directly_modified());
-      console.log('timingModel ' + timingModel.has_been_modified());
-      console.log(
-        'timingModel.count ' + timingModel.count.has_been_directly_modified(),
-      );
-      console.log('timingModel.count ' + timingModel.count.has_been_modified());
-      console.log(
-        'timingModel.offset ' + timingModel.offset.has_been_directly_modified(),
-      );
-      console.log(
-        'timingModel.offset ' + timingModel.offset.has_been_modified(),
-      );
+      // const timingModel: spinal.Model = value['10012']['3'];
+      // console.log('timingModel ' + timingModel.has_been_directly_modified());
+      // console.log('timingModel ' + timingModel.has_been_modified());
+      // console.log(
+      //   'timingModel.count ' + timingModel.count.has_been_directly_modified(),
+      // );
+      // console.log('timingModel.count ' + timingModel.count.has_been_modified());
+      // console.log(
+      //   'timingModel.offset ' + timingModel.offset.has_been_directly_modified(),
+      // );
+      // console.log(
+      //   'timingModel.offset ' + timingModel.offset.has_been_modified(),
+      // );
     });
   }
 }

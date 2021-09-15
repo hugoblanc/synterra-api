@@ -23,7 +23,7 @@ export class TaskUpdateService {
   ) {}
 
   @OnEvent(DailyAvgUpdatedEvent.EVENT_NAME)
-  async realtimeUpdate(event: DailyAvgUpdatedEvent) {
+  async realtimeUpdate() {
     const mixedAverage = await firstValueFrom(
       this.synterraAnalyticsService.getMixedAverage(),
     );

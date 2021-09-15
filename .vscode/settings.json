@@ -1,4 +1,13 @@
 {
   "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "typescript.preferences.importModuleSpecifier": "relative"
+  "typescript.preferences.importModuleSpecifier": "relative",
+  "workbench.colorCustomizations": {
+    "[Monokai]": {
+      "sideBar.background": "#000000",
+      "editor.background": "#0f0f0f"
+    },
+    "activityBar.background": "#262F31",
+    "titleBar.activeBackground": "#354245",
+    "titleBar.activeForeground": "#FAFBFB"
+  }
 }
